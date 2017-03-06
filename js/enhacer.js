@@ -17,7 +17,7 @@
 	var pveGroupPrefix = 'pve-group-';
 
 	/* Faction colors */
-	var allianceColor = 'rgba(0, 40, 84, 0.2)';
+	var allianceColor = 'rgba(0, 40, 84, 0.4)';
 	var allianceIcon = `<svg
 		xmlns="http://www.w3.org/2000/svg"
 		xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -142,7 +142,7 @@
 				.replace("'", "")
 				.replace("\n", "");
 		}
-		
+
 		if (selectedRealm) {
 			debug(`Creating rules for ${selectedRealm} realm`);
 
@@ -199,7 +199,7 @@
 	var enhancePvELeaderboardsGroups = function(selectedRealm) {
 		var table = document.querySelector('.Pane-content .contain-max .Pagination .SortTable .SortTable-body');
 		var listItems = table.getElementsByClassName('List');
-		
+
 		// Visit each group
 		for (var x in listItems) {
 			var group = listItems[x];
@@ -221,29 +221,34 @@
 					}
 				}
 
-				var tableRow = group.parentElement;
+				var tableCell = group.parentElement;
+				var faction = tableCell.dataset.value;
 
 				// Mark foreign groups
 				if (hidePvELeaderboardsForeignGroups && foreignCharacters > 1) {
-					tableRow.parentElement.className = `${tableRow.parentElement.className} SortTable${foreignClassNameModifier}`;
+					tableCell.parentElement.className = `${tableCell.parentElement.className} SortTable${foreignClassNameModifier}`;
 				} else {
-					tableRow.parentElement.className = `${tableRow.parentElement.className} SortTable${residentClassNameModifier}`;
+					tableCell.parentElement.className = `${tableCell.parentElement.className} SortTable${residentClassNameModifier}`;
 				}
 
 				// Mark each group's faction
 				if (markPvELeaderboardsFactionGroups) {
-					var faction = tableRow.dataset.value;
-	
 					// Add faction Logo to the table
-					tableRow.innerHTML = `
+					tableCell.innerHTML = `
 						<span class="Icon Icon--${faction} Icon--medium">
 							${faction === 'alliance' ? allianceIcon : ''}
 							${faction === 'horde' ? hordeIcon : ''}
 						</span>
 						<div style="position: relative; display: inline-block; vertical-align: middle; padding-bottom: 5px;">
-							${tableRow.innerHTML}
+							${tableCell.innerHTML}
 						</div>
 					`;
+				}
+
+				// Mark Row with propper faction
+				if (updatePvELeaderboardsFactionGroupsBackground) {
+					var tableRow = tableCell.parentElement;
+					tableRow.className = `${tableRow.className} SortTable--${faction}`;
 				}
 
 				// Show group's guilds
@@ -264,7 +269,7 @@
 							}
 						}
 					}
-					
+
 					// Write guild name into the DOM
 					var getGuildElement = function(character) {
 						var guildElement = `
@@ -288,7 +293,7 @@
 						// Open character's profile on a new window
 						var guildChecker = window.open(`${firstMember.href}?guild=check`);
 						debug('Chrome runtime, waiting to sendGuildName');
-						
+
 						// Get character's name
 						var websiteElements = characterWebsitePattern.exec(firstMember.href);
 						var characterName = websiteElements[4];
@@ -304,7 +309,7 @@
 							var listItems = document.getElementsByClassName(`SortTable${residentClassNameModifier}`);
 							for (var y in listItems) {
 								var group = listItems[y];
-								
+
 								if (group.className) {
 									// Loop throug all of their characters
 									var characters = group.getElementsByClassName('Character-name');
@@ -338,11 +343,11 @@
 		// STYLE: Change row's background color, based on their factions
 		if (updatePvELeaderboardsFactionGroupsBackground) {
 			enhacedStyles.innerHTML += `
-				.SortTable-col[data-value="alliance"] {
-					background: ${allianceColor};
+				.SortTable--alliance {
+					background: ${allianceColor} !important;
 				}
-				.SortTable-col[data-value="horde"] {
-					background: ${hordeColor};
+				.SortTable--horde {
+					background: ${hordeColor} !important;
 				}
 			`;
 		}
@@ -384,7 +389,7 @@
 		var guildChecker = function() {
 			var nameSelector = document.querySelector('#content .content-bot .profile-info .name > a');
 			var guildSelector = document.querySelector('#content .content-bot .profile-info .title-guild .guild > a');
-			
+
 			// If guildSelector does not exist, retry it
 			if (nameSelector && guildSelector) {
 				debug(`New window has loaded, getting name: ${nameSelector.innerText}, and guild: ${guildSelector.innerText}`);
