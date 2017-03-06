@@ -11,41 +11,173 @@
 
 		<!-- JS -->
     <!--<script type="text/javascript" src="js/jquery.min.js"></script>-->
+
+		<!-- CSS -->
+		<link rel="stylesheet" href="https://worldofwarcraft.com/static/styles/wow.css?v=1.5.1" />
+		<link rel="stylesheet" href="css/custom-styles.css" />
 	</head>
 	<body>
-		<h1>Options</h1>
 
-		<form name="options">
-			<label>
-				<input type="checkbox" id="markPvELeaderboardsForeignCharacters" name="markPvELeaderboardsForeignCharacters" />
-				<span>Differentiate non-realm characters</span>
-			</label>
-			<br />
+		<!-- Page title -->
+		<div class="Pane Pane--pageTitle">
+			<div class="Pane-bg"></div>
 
-			<label>
-				<input type="checkbox" id="markPvELeaderboardsFactionGroups" name="markPvELeaderboardsFactionGroups" />
-				<span>Place faction's icons on each group</span>
-			</label>
-			<br />
+			<div class="Pane-content">
+				<div class="space-huge"></div>
+				<div class="contain-masthead align-center">
+					<div class="font-semp-xxLarge-white">WoW Web Enhacer</div>
+					<div class="space-rhythm-medium"></div>
+					<div class="font-bliz-light-small-beige">Get a better display on World of Warcraft official related websites.</div>
+				</div>
+				<div class="space-large"></div>
+			</div>
+		</div>
+		<div class="Divider"></div>
 
-			<label>
-				<input type="checkbox" id="updatePvELeaderboardsFactionGroupsBackground" name="updatePvELeaderboardsFactionGroupsBackground" />
-				<span>Change each group's background color to represent its faction</span>
-			</label>
-			<br />
+		<!-- Page content -->
+		<div class="Pane Pane--dirtLight">
+			<div class="Pane-bg">
+				<div class="Pane-overlay"></div>
+			</div>
 
-			<label>
-				<input type="checkbox" id="hidePvELeaderboardsForeignGroups" name="hidePvELeaderboardsForeignGroups" />
-				<span>Hide 'Group Finder' groups</span>
-			</label>
-			<br />
+			<!-- Page subtitle -->
+			<div class="Pane-content">
+				<div class="List List--vertical List--center">
+					<div class="List-item gutter-noraml">
+						<div class="space-normal"></div>
+						<h1 class="font-title-normal-onDark">Options</h1>
+						<div class="space-small"></div>
+					</div>
+				</div>
+			</div>
+		
+			<!-- Form -->
+			<div class="Pane-content">
+				<div class="contain-max">
+					<form name="options">
+						<div class="Talent Talent--checkbox Talent--border Talent--gutter">
+							<div class="Talent-head">
+								<div class="List">
+									<div class="Talent-name List-item gutter-normal">
+										Differentiate non-realm characters
+									</div>
+								</div>
+								<div class="Talent-checkbox">
+									<input
+										id="markPvELeaderboardsForeignCharacters"
+										name="markPvELeaderboardsForeignCharacters"
+										type="checkbox"
+										value="none"
+										class="Talent-checkboxInput"
+									/>
+									<label for="markPvELeaderboardsForeignCharacters" class="Talent-checkboxLabel"></label>
+								</div>
+								<div class="Talent-active"></div>
+							</div>
+						</div>
 
-			<label>
-				<input type="checkbox" id="showPvELeaderboardsGuild" name="showPvELeaderboardsGuild" value="false" disabled />
-				<span>Check non-group-finder group's guild</span>
-			</label>
-			<br />
-		</form>
+						<div class="Talent Talent--checkbox Talent--border Talent--gutter">
+							<div class="Talent-head">
+								<div class="List">
+									<div class="Talent-name List-item gutter-normal">
+										Place faction's icons on each group
+									</div>
+								</div>
+								<div class="Talent-checkbox">
+									<input
+										id="markPvELeaderboardsFactionGroups"
+										name="markPvELeaderboardsFactionGroups"
+										type="checkbox"
+										value="none"
+										class="Talent-checkboxInput"
+									/>
+									<label for="markPvELeaderboardsFactionGroups" class="Talent-checkboxLabel"></label>
+								</div>
+								<div class="Talent-active"></div>
+							</div>
+						</div>
+
+						<div class="Talent Talent--checkbox Talent--border Talent--gutter">
+							<div class="Talent-head">
+								<div class="List">
+									<div class="Talent-name List-item gutter-normal">
+										Change each group's background color to represent its faction
+									</div>
+								</div>
+								<div class="Talent-checkbox">
+									<input
+										id="updatePvELeaderboardsFactionGroupsBackground"
+										name="updatePvELeaderboardsFactionGroupsBackground"
+										type="checkbox"
+										value="none"
+										class="Talent-checkboxInput"
+									/>
+									<label for="updatePvELeaderboardsFactionGroupsBackground" class="Talent-checkboxLabel"></label>
+								</div>
+								<div class="Talent-active"></div>
+
+							</div>
+						</div>
+
+						<div class="Talent Talent--checkbox Talent--border Talent--gutter">
+							<div class="Talent-head">
+								<div class="List">
+									<div class="Talent-name List-item gutter-normal">
+										Hide 'Group Finder' groups
+									</div>
+								</div>
+								<div class="Talent-checkbox">
+									<input
+										id="hidePvELeaderboardsForeignGroups"
+										name="hidePvELeaderboardsForeignGroups"
+										type="checkbox"
+										value="none"
+										class="Talent-checkboxInput"
+									/>
+									<label for="hidePvELeaderboardsForeignGroups" class="Talent-checkboxLabel"></label>
+								</div>
+								<div class="Talent-active"></div>
+							</div>
+						</div>
+
+						<div class="Talent Talent--checkbox Talent--border Talent--gutter">
+							<div class="Talent-head">
+								<div class="List">
+									<div class="Talent-name List-item gutter-normal">
+										Check non-group-finder group's guild
+									</div>
+								</div>
+								<div class="Talent-checkbox">
+									<input
+										id="showPvELeaderboardsGuild"
+										name="showPvELeaderboardsGuild"
+										type="checkbox"
+										value="none"
+										class="Talent-checkboxInput"
+									/>
+									<label for="showPvELeaderboardsGuild" class="Talent-checkboxLabel"></label>
+								</div>
+								<div class="Talent-active"></div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="Divider"></div>
+
+		<!-- Social -->
+		<div class="Pane Pane--dirtLight bordered">
+			<div class="Pane-bg"></div>
+			<div class="Pane-content">
+				<div class="gutter-normal gutter-vertical">
+					<div class="SocialLinks">
+						<div class="SocialLinks-title">View code at <a href="https://www.github.com/lordfido/wowweb-enhacer" target="_blank" rel="noopener noreferer">GitHub</a></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="space-huge"></div>
 
 		<script src="js/options.js"></script>
 	</body>

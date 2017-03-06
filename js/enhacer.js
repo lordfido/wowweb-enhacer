@@ -43,7 +43,29 @@
 	var markPvELeaderboardsFactionGroups = true;				// Place an icon to show group's factions
 	var updatePvELeaderboardsFactionGroupsBackground = true;	// Change table background with its faction's color
 	var hidePvELeaderboardsForeignGroups = true;				// Hide groups with too many foreigners
-	var showPvELeaderboardsGuild = true;						// Show the guild name of each group
+	var showPvELeaderboardsGuild = false;						// Show the guild name of each group
+
+	// Init saved configs
+	var initConfigs = function(callback) {
+
+		chrome.storage.sync.get({
+        markPvELeaderboardsForeignCharacters: true,
+        markPvELeaderboardsFactionGroups: true,
+        updatePvELeaderboardsFactionGroupsBackground: true,
+        hidePvELeaderboardsForeignGroups: true,
+        showPvELeaderboardsGuild: false,
+
+    // Callback function, do anything after loading options
+    }, function(options) {
+			markPvELeaderboardsForeignCharacters = options.markPvELeaderboardsForeignCharacters;
+			markPvELeaderboardsFactionGroups = options.markPvELeaderboardsFactionGroups;
+			updatePvELeaderboardsFactionGroupsBackground = options.updatePvELeaderboardsFactionGroupsBackground;
+			hidePvELeaderboardsForeignGroups = options.hidePvELeaderboardsForeignGroups;
+			showPvELeaderboardsGuild = options.showPvELeaderboardsGuild;
+
+			callback();
+    });
+	};
 
 	/* Init functions */
 	var init = function() {
@@ -51,9 +73,6 @@
 
 		if (isWarcraftWebsite(urlToCheck)) {
 			debug('Entering on wow website');
-			
-			// Get user config
-			initConfigs();
 
 			// Verify if we are on PvE Leaderboards Website
 			if (isPvELeaderboardsWebsite(urlToCheck)) {
@@ -70,14 +89,6 @@
 				makeGuildNameAvailable();
 			}
 		}
-	};
-
-	var initConfigs = function() {
-		// markPvELeaderboardsForeignCharacters = false;
-		// markPvELeaderboardsFactionGroups = false;
-		// updatePvELeaderboardsFactionGroupsBackground = false;
-		// hidePvELeaderboardsForeignGroups = false;
-		showPvELeaderboardsGuild = false;
 	};
 
 	// Apply enhances to the website
@@ -396,5 +407,5 @@
 	};
 
 	/*	App start	*/
-	init();
+	initConfigs(init);
 }())

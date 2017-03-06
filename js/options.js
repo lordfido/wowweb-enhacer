@@ -1,4 +1,5 @@
 
+// Save selected options
 var save_options = function() {
 	// var markPvELeaderboardsForeignCharacters = document.getElementById('markPvELeaderboardsForeignCharacters').value;
     var markPvELeaderboardsForeignCharacters = document.getElementById('markPvELeaderboardsForeignCharacters').checked;
@@ -25,7 +26,7 @@ var save_options = function() {
     
     // Callback function, do anything after saving options
     }, function() {
-
+        console.log('Options have been saved');
     });
 };
 
@@ -42,19 +43,66 @@ var load_options = function() {
     }, function(options) {
         // document.getElementById('markPvELeaderboardsForeignCharacters').value = options.markPvELeaderboardsForeignCharacters;
         document.getElementById('markPvELeaderboardsForeignCharacters').checked = options.markPvELeaderboardsForeignCharacters;
+        if (options.markPvELeaderboardsForeignCharacters) {
+            setAsActive(document.getElementById('markPvELeaderboardsForeignCharacters').parentElement.parentElement.parentElement);
+        }
 
         // document.getElementById('markPvELeaderboardsFactionGroups').value = options.markPvELeaderboardsFactionGroups;
         document.getElementById('markPvELeaderboardsFactionGroups').checked = options.markPvELeaderboardsFactionGroups;
+        if (options.markPvELeaderboardsFactionGroups) {
+            setAsActive(document.getElementById('markPvELeaderboardsFactionGroups').parentElement.parentElement.parentElement);
+        }
 
         // document.getElementById('updatePvELeaderboardsFactionGroupsBackground').value = options.updatePvELeaderboardsFactionGroupsBackground;
         document.getElementById('updatePvELeaderboardsFactionGroupsBackground').checked = options.updatePvELeaderboardsFactionGroupsBackground;
+        if (options.updatePvELeaderboardsFactionGroupsBackground) {
+            setAsActive(document.getElementById('updatePvELeaderboardsFactionGroupsBackground').parentElement.parentElement.parentElement);
+        }
 
         // document.getElementById('hidePvELeaderboardsForeignGroups').value = options.hidePvELeaderboardsForeignGroups;
         document.getElementById('hidePvELeaderboardsForeignGroups').checked = options.hidePvELeaderboardsForeignGroups;
+        if (options.hidePvELeaderboardsForeignGroups) {
+            setAsActive(document.getElementById('hidePvELeaderboardsForeignGroups').parentElement.parentElement.parentElement);
+        }
 
         // document.getElementById('showPvELeaderboardsGuild').value = options.showPvELeaderboardsGuild;
         document.getElementById('showPvELeaderboardsGuild').checked = options.showPvELeaderboardsGuild;
+        if (options.showPvELeaderboardsGuild) {
+            setAsActive(document.getElementById('showPvELeaderboardsGuild').parentElement.parentElement.parentElement);
+        }
     });
-}
+};
 
+// Change checkbox styles
+var updateCheckbox = function(event) {
+    var elem = event.target;
+    if (elem.checked) {
+        setAsActive(elem.parentElement.parentElement.parentElement);
+    } else {
+        setAsInactive(elem.parentElement.parentElement.parentElement);
+    }
+
+    save_options();
+};
+
+var setAsActive = function(elem) {
+    elem.classList.add('Talent--selectedGutter');
+    elem.classList.add('is-selected');
+};
+
+var setAsInactive = function(elem) {
+    elem.classList.remove('Talent--selectedGutter');
+    elem.classList.remove('is-selected');
+};
+
+// On load, restore saved settings
 document.addEventListener('DOMContentLoaded', load_options);
+
+// Apply event listeners to all checkboxes
+var checkboxes = document.getElementsByClassName('Talent-checkboxInput');
+for (var x in checkboxes) {
+    var check = checkboxes[x];
+    if (check.className) {
+        check.addEventListener('change', updateCheckbox, true);
+    }
+}

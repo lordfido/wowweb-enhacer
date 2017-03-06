@@ -1,0 +1,31 @@
+
+.Pane--pageTitle .Pane-bg {
+  background-color:#000;
+  background-image:url('https://bnetcmsus-a.akamaihd.net/cms/template_resource/73/73HV5HRS7D7C1468353649488.jpg');
+  background-position: top center;
+}
+
+.Talent {
+  display: inline-block;
+
+  width: calc(100% - 20px);
+  min-height: 76px;
+  max-width: 400px;
+  padding-bottom: 13px;
+  margin: 10px 10px;
+
+  line-height: 76px;
+  text-align: left;
+}
+
+.Talent-head {
+  height: 100%;
+}
+
+.List {
+  max-width: calc(100% - 60px);
+}
+
+form {
+  text-align: center;
+}
