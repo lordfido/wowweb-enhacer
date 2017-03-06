@@ -3,8 +3,8 @@
 
 	"name": "WoW website enhacer",
 	"short_name": "WoW web enhacer",
-	"description": "World of Warcraft website enhacer",
-	"version": "1.0.0",
+	"description": "Get a better display on World of Warcraft official related websites.",
+	"version": "1.0.1",
 	"author": "Rafael Pérez García",
 	
 	"icons": {
