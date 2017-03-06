@@ -1,9 +1,10 @@
 {
 	"manifest_version": 2,
 
-	"name": ">World of Warcraft website enhacer",
-	"description": ">World of Warcraft website enhacer",
-	"version": "0.0.1",
+	"name": "WoW website enhacer",
+	"short_name": "WoW web enhacer",
+	"description": "World of Warcraft website enhacer",
+	"version": "1.0.0",
 	"author": "Rafael Pérez García",
 	
 	"icons": {
