@@ -4,7 +4,7 @@
 	"name": "WoW website enhacer",
 	"short_name": "WoW web enhacer",
 	"description": "Get a better display on World of Warcraft official related websites.",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"author": "Rafael Pérez García",
 	
 	"icons": {
@@ -22,6 +22,16 @@
 		"http://*.battle.net/*",
 		"https://*.battle.net/*"
 	],
+
+	"browser_action": {
+		"icons": {
+			"128": "images/logo_128.png",
+			"24": "images/logo_24.png",
+			"16": "images/logo_16.png"
+		},
+		"default_title": "WoW Web Enhacer",
+		"default_popup": "options.html"
+	},
 
 	"options_page": "options.html",
 	
