@@ -34,7 +34,7 @@
 		</div>
 		<div class="Divider"></div>
 
-		<!-- Page content -->
+		<!-- Armory -->
 		<div class="Pane Pane--dirtLight">
 			<div class="Pane-bg">
 				<div class="Pane-overlay"></div>
@@ -43,9 +43,56 @@
 			<!-- Page subtitle -->
 			<div class="Pane-content">
 				<div class="List List--vertical List--center">
-					<div class="List-item gutter-noraml">
+					<div class="List-item gutter-normal">
 						<div class="space-normal"></div>
-						<h1 class="font-title-normal-onDark">Options</h1>
+						<h1 class="font-title-normal-onDark">Character Armory</h1>
+						<div class="space-small"></div>
+					</div>
+				</div>
+			</div>
+		
+			<!-- Form -->
+			<div class="Pane-content">
+				<div class="contain-max">
+					<form name="options">
+						<div class="Talent Talent--checkbox Talent--border Talent--gutter">
+							<div class="Talent-head">
+								<div class="List">
+									<div class="Talent-name List-item gutter-normal">
+										Use <b>equipped</b> item level instead of <b>average</b>
+									</div>
+								</div>
+								<div class="Talent-checkbox">
+									<input
+										id="useEquippedItemLevel"
+										name="useEquippedItemLevel"
+										type="checkbox"
+										value="none"
+										class="Talent-checkboxInput"
+									/>
+									<label for="useEquippedItemLevel" class="Talent-checkboxLabel"></label>
+								</div>
+								<div class="Talent-active"></div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="Divider"></div>
+
+		<!-- PvE Leaderboards -->
+		<div class="Pane Pane--dirtLight">
+			<div class="Pane-bg">
+				<div class="Pane-overlay"></div>
+			</div>
+
+			<!-- Page subtitle -->
+			<div class="Pane-content">
+				<div class="List List--vertical List--center">
+					<div class="List-item gutter-normal">
+						<div class="space-normal"></div>
+						<h1 class="font-title-normal-onDark">PvE Leaderboards</h1>
 						<div class="space-small"></div>
 					</div>
 				</div>

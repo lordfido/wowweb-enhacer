@@ -39,6 +39,7 @@
 	var pveLeaderboards = 'pve/leaderboards';
 
 	/* Config variables */
+	var useEquippedItemLevel = true;										// Use equipped item level instead of average
 	var markPvELeaderboardsForeignCharacters = true;			// Use custom styles for foreign charachters
 	var markPvELeaderboardsFactionGroups = true;				// Place an icon to show group's factions
 	var updatePvELeaderboardsFactionGroupsBackground = true;	// Change table background with its faction's color
@@ -49,6 +50,7 @@
 	var initConfigs = function(callback) {
 
 		chrome.storage.sync.get({
+				useEquippedItemLevel: true,
         markPvELeaderboardsForeignCharacters: true,
         markPvELeaderboardsFactionGroups: true,
         updatePvELeaderboardsFactionGroupsBackground: true,
@@ -57,6 +59,7 @@
 
     // Callback function, do anything after loading options
     }, function(options) {
+			useEquippedItemLevel = options.useEquippedItemLevel;
 			markPvELeaderboardsForeignCharacters = options.markPvELeaderboardsForeignCharacters;
 			markPvELeaderboardsFactionGroups = options.markPvELeaderboardsFactionGroups;
 			updatePvELeaderboardsFactionGroupsBackground = options.updatePvELeaderboardsFactionGroupsBackground;
@@ -71,6 +74,15 @@
 	var init = function() {
 		debug('Extension loaded');
 
+		if (isArmoryWebsite(urlToCheck)) {
+			debug('Armory website detected!');
+
+			enhanceArmory();
+			if (guildParameter.test(urlToCheck)) {
+				makeGuildNameAvailable();
+			}
+		}
+
 		if (isWarcraftWebsite(urlToCheck)) {
 			debug('Entering on wow website');
 
@@ -82,16 +94,44 @@
 			// Add enhacedStyles to the DOM
 			document.head.appendChild(enhacedStyles);
 		}
+	};
 
-		if (isArmoryWebsite(urlToCheck)) {
-			debug('Armory website detected!');
-			if (guildParameter.test(urlToCheck)) {
-				makeGuildNameAvailable();
-			}
+	// Apply enhances to armory
+	var enhanceArmory = function() {
+		debug('Enhacing Armory website');
+
+		if (useEquippedItemLevel) {
+			debug ('Updating ilvl to display equipped instead of average');
+
+			// Use equipped ilvl and remove average ilvl
+			var updateIlvl = function() {
+				var equippedSelector = document.querySelector('#content #profile-wrapper .profile-contents .summary-top .summary-averageilvl .rest .equipped');
+				var equipped = equippedSelector.innerText;
+
+				var averageSelector = document.querySelector('#content #profile-wrapper .profile-contents .summary-top .summary-averageilvl #summary-averageilvl-best');
+				averageSelector.innerText = equipped;
+				equippedSelector.parentElement.innerHTML = 'item level';
+
+			};
+
+			// Waits until ilvl appears
+			var checkForItemLevel = function() {
+				var ilvl = document.querySelector('#content #profile-wrapper .profile-contents .summary-top .summary-averageilvl');
+				// There is ilvl
+				if (ilvl) {
+					updateIlvl();
+				} else {
+					setTimeout(function() {
+						checkForItemLevel();
+					}, 500);
+				}
+			};
+
+			checkForItemLevel();
 		}
 	};
 
-	// Apply enhances to the website
+	// Apply enhances to leaderboards
 	var enhancePvELeaderboards = function() {
 		debug('Enhacing PvE Leaderboards website');
 
