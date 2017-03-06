@@ -1,0 +1,52 @@
+<!doctype html>
+
+<html >
+	<head>
+		<!-- METAS -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+		<title>World of Warcraft website enhacer</title>
+		<meta name="description" content="World of Warcraft website enhacer" />
+
+		<!-- JS -->
+    <!--<script type="text/javascript" src="js/jquery.min.js"></script>-->
+	</head>
+	<body>
+		<h1>Options</h1>
+
+		<form name="options">
+			<label>
+				<input type="checkbox" id="markPvELeaderboardsForeignCharacters" name="markPvELeaderboardsForeignCharacters" />
+				<span>Differentiate non-realm characters</span>
+			</label>
+			<br />
+
+			<label>
+				<input type="checkbox" id="markPvELeaderboardsFactionGroups" name="markPvELeaderboardsFactionGroups" />
+				<span>Place faction's icons on each group</span>
+			</label>
+			<br />
+
+			<label>
+				<input type="checkbox" id="updatePvELeaderboardsFactionGroupsBackground" name="updatePvELeaderboardsFactionGroupsBackground" />
+				<span>Change each group's background color to represent its faction</span>
+			</label>
+			<br />
+
+			<label>
+				<input type="checkbox" id="hidePvELeaderboardsForeignGroups" name="hidePvELeaderboardsForeignGroups" />
+				<span>Hide 'Group Finder' groups</span>
+			</label>
+			<br />
+
+			<label>
+				<input type="checkbox" id="showPvELeaderboardsGuild" name="showPvELeaderboardsGuild" value="false" disabled />
+				<span>Check non-group-finder group's guild</span>
+			</label>
+			<br />
+		</form>
+
+		<script src="js/options.js"></script>
+	</body>
+</html>

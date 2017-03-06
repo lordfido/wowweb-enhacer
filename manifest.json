@@ -1,0 +1,45 @@
+{
+	"manifest_version": 2,
+
+	"name": ">World of Warcraft website enhacer",
+	"description": ">World of Warcraft website enhacer",
+	"version": "0.0.1",
+	"author": "Rafael Pérez García",
+	
+	"icons": {
+		"128": "images/logo_128.png",
+		"24": "images/logo_24.png",
+		"16": "images/logo_16.png"
+	},
+	
+	"permissions": [
+		"storage",
+		"tabs",
+		"background",
+		"http://*.worldofwarcraft.com/*",
+		"https://*.worldofwarcraft.com/*",
+		"http://*.battle.net/*",
+		"https://*.battle.net/*"
+	],
+
+	"options_page": "options.html",
+	
+	"content_scripts": [{
+		"matches": [
+		"http://*.worldofwarcraft.com/*",
+		"https://*.worldofwarcraft.com/*",
+		"http://*.battle.net/*",
+		"https://*.battle.net/*"
+		],
+		"js": [
+			"js/jquery.min.js",
+			"js/enhacer.js"
+		]
+	}],
+
+	"background": {
+		"scripts": [
+			"js/background.js"
+		]
+	}
+}
