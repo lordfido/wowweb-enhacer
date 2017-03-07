@@ -1,3 +1,7 @@
+html,
+body {
+  min-width: 400px;
+}
 
 .Pane--pageTitle .Pane-bg {
   background-color:#000;
@@ -28,4 +32,30 @@
 
 form {
   text-align: center;
+}
+
+/* Footer */
+.Link,
+.select-region,
+.select-language {
+  cursor: pointer;
+}
+
+.region-ul,
+.language-ul {
+  float: left;
+}
+
+/* Only mobile version */
+@media screen and (max-width: 538px) {
+  .footer .footer-section .dropup .dropdown-menu {
+    right: 0px;
+  }
+
+  .footer .footer-section .dropup .dropdown-menu .arrow-down::before {
+    right: 0;
+  }
+  .footer .footer-section .dropup .dropdown-menu .arrow-down::after {
+    content: none;
+  }
 }

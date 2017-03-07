@@ -1,3 +1,4 @@
+var selectedRegion, selectedCountry, selectedLanguage;
 
 // Save selected options
 var save_options = function() {
@@ -7,7 +8,7 @@ var save_options = function() {
     var updatePvELeaderboardsFactionGroupsBackground = document.getElementById('updatePvELeaderboardsFactionGroupsBackground').checked;
     var hidePvELeaderboardsForeignGroups = document.getElementById('hidePvELeaderboardsForeignGroups').checked;
     var showPvELeaderboardsGuild = document.getElementById('showPvELeaderboardsGuild').checked;
-
+    var showShopOffersFirst = document.getElementById('showShopOffersFirst').checked;
 
     chrome.storage.sync.set({
         useEquippedItemLevel: useEquippedItemLevel,
@@ -16,10 +17,29 @@ var save_options = function() {
         updatePvELeaderboardsFactionGroupsBackground: updatePvELeaderboardsFactionGroupsBackground,
         hidePvELeaderboardsForeignGroups: hidePvELeaderboardsForeignGroups,
         showPvELeaderboardsGuild: showPvELeaderboardsGuild,
+        showShopOffersFirst: showShopOffersFirst,
     
     // Callback function, do anything after saving options
     }, function() {
-        console.log('Options have been saved');
+        console.log('Options have been saved.');
+    });
+};
+
+// Save options and close languages dropdown
+var saveLanguageOptions = function(event) {
+    event.preventDefault();
+    chrome.storage.sync.set({
+        selectedRegion: selectedRegion,
+        selectedCountry: selectedCountry,
+        selectedLanguage: selectedLanguage,
+    
+    // Callback function, do anything after saving options
+    }, function() {
+        console.log('Language Options have been saved.');
+        updateLanguageDropdownLabel(selectedRegion, selectedLanguage);
+        toggleLanguageDropdown(event);
+        document.getElementById('change-language').disabled = false;
+        document.getElementById('change-language').classList.remove('disabled');
     });
 };
 
@@ -32,6 +52,10 @@ var load_options = function() {
         updatePvELeaderboardsFactionGroupsBackground: true,
         hidePvELeaderboardsForeignGroups: true,
         showPvELeaderboardsGuild: false,
+        showShopOffersFirst: true,
+        selectedRegion: 'us',
+        selectedCountry: 'us',
+        selectedLanguage: 'en',
 
     // Callback function, do anything after loading options
     }, function(options) {
@@ -59,11 +83,17 @@ var load_options = function() {
         if (options.showPvELeaderboardsGuild) {
             setAsActive(document.getElementById('showPvELeaderboardsGuild').parentElement.parentElement.parentElement);
         }
+        document.getElementById('showShopOffersFirst').checked = options.showShopOffersFirst;
+        if (options.showShopOffersFirst) {
+            setAsActive(document.getElementById('showShopOffersFirst').parentElement.parentElement.parentElement);
+        }
+        setInitialLanguage(options.selectedRegion, options.selectedLanguage);
     });
 };
 
 // Change checkbox styles
 var updateCheckbox = function(event) {
+    console.log('Checkbox');
     var elem = event.target;
     if (elem.checked) {
         setAsActive(elem.parentElement.parentElement.parentElement);
@@ -74,18 +104,210 @@ var updateCheckbox = function(event) {
     save_options();
 };
 
+// Mark checkbox as active
 var setAsActive = function(elem) {
     elem.classList.add('Talent--selectedGutter');
     elem.classList.add('is-selected');
 };
 
+// Mark checkbox as inactive
 var setAsInactive = function(elem) {
     elem.classList.remove('Talent--selectedGutter');
     elem.classList.remove('is-selected');
 };
 
+// Load last options saved
+var discardLanguageChanges = function() {
+    chrome.storage.sync.get({
+        selectedRegion: 'us',
+        selectedLanguage: 'en',
+
+    // Callback function, do anything after loading options
+    }, function(options) {
+        setInitialLanguage(options.selectedRegion, options.selectedLanguage);
+    });
+};
+
+// Toggle Region-Language's dropdown
+var languageDropdown = document.getElementById('region-language-dropdown');
+var toggleLanguageDropdown = function(event, forceClose) {
+    if (event.target.localName !== 'input') {
+        event.preventDefault();
+    }
+
+    if (/open/.test(languageDropdown.parentElement.className) || forceClose) {
+        languageDropdown.parentElement.classList.remove('open');
+    } else {
+        languageDropdown.parentElement.classList.add('open');
+    }
+
+    if (forceClose) {
+        discardLanguageChanges();
+    }
+};
+
+// Update dropdown label
+var updateLanguageDropdownLabel = function(region, language) {
+    var selectedRegion = regions[region];
+    var selectedCountry = languages[region][language];
+    var textToDisplay = `${selectedRegion} - ${selectedCountry}`;
+    document.getElementById('region-language-label').innerText = textToDisplay;
+};
+
+// Show available languages for a region
+var updateLanguageList = function(region) {
+    var languageRegions = document.getElementById('languages').childNodes;
+    for (var x in languageRegions) {
+        var reg = languageRegions[x];
+        
+        // Loop through available regions
+        if (reg.localName === 'div') {
+
+            // If selected region, mark as active
+            if (reg.dataset.region === region) {
+                reg.classList.add('active');
+            } else {
+                reg.classList.remove('active');
+            }
+        }
+    }
+};
+
+// Mark as active selected region
+var setRegion = function(region) {
+    var regionsElem = document.getElementById('regions').childNodes;
+    
+    // Loop through regions
+    for (var x in regionsElem) {
+        var reg = regionsElem[x];
+
+        if (reg.localName === 'li') {
+            // Check for selected region
+            if (reg.firstChild.dataset.region === region) {
+                // Add highlight classes
+                reg.classList.add('active');
+                reg.classList.add('current');
+
+                // Update language list
+                selectedRegion = region;
+                selectedLanguage = false;
+                updateLanguageList(region);
+            } else {
+                // Remove highlight classes
+                reg.classList.remove('active');
+                reg.classList.remove('current');
+            }
+        }
+    }
+};
+
+// Mark as active selected language
+var setLanguage = function(region, language) {
+    var languageRegions = document.getElementById('languages').childNodes;
+    for (var x in languageRegions) {
+        var reg = languageRegions[x];
+        
+        // Loop through available regions
+        if (reg.localName === 'div') {
+            // Loop through available languages
+            var langs = reg.childNodes;
+            for (var y in langs) {
+                var lang = langs[y];
+                if (lang.localName === 'li') {
+                    if (lang.firstChild.dataset.region === region && lang.firstChild.dataset.language === language) {
+                        // Add highlight classes
+                        lang.classList.add('active');
+                        lang.classList.add('current');
+                        selectedLanguage = language;
+                        selectedCountry = lang.firstChild.dataset.country;
+                    } else {
+                        // Remove highlight classes
+                        lang.classList.remove('active');
+                        lang.classList.remove('current');
+                    }
+                }
+            }
+        }
+    }
+};
+
+// Set Region-Language's dropdown label
+var setInitialLanguage = function(region, language) {
+    updateLanguageDropdownLabel(region, language);
+
+    // Mark dropdown elements as active
+    setRegion(region);
+    setLanguage(region, language);
+};
+
+// Change user's region
+var handleRegionClick = function(event) {
+    event.preventDefault();
+    var region = event.target && event.target.dataset && event.target.dataset.region;
+    if (region) {
+        setRegion(region);
+        document.getElementById('change-language').disabled = true;
+        document.getElementById('change-language').classList.add('disabled');
+    }
+};
+
+// Change user's language
+var handleLanguageClick = function(event) {
+    event.preventDefault();
+    var region = event.target && event.target.dataset && event.target.dataset.region;
+    var language = event.target && event.target.dataset && event.target.dataset.language;
+    if (region && language) {
+        setLanguage(region, language);
+        document.getElementById('change-language').disabled = false;
+        document.getElementById('change-language').classList.remove('disabled');
+    }
+};
+
+// Replace variables on given URL
+var parseUrl = function(url) {
+    return url
+        .replace('{{language}}', selectedLanguage)
+        .replace('{{country}}', selectedCountry)
+        .replace('{{region}}', selectedRegion)
+        .replace('{{realm}}', defaultRealm)
+        .replace('{{instance}}', defaultInstance);
+};
+
+// Open new websites
+var openPvELeaderboards = function(event) {
+    event.preventDefault();
+    window.open(parseUrl(pveLeaderboardsUrl));
+};
+
+var openShop = function(event) {
+    event.preventDefault();
+    window.open(parseUrl(shopUrl));
+};
+
+var openGithub = function(event) {
+    event.preventDefault();
+    window.open(githubUrl);
+};
+
 // On load, restore saved settings
 document.addEventListener('DOMContentLoaded', load_options);
+
+// General click
+document.addEventListener('click', function(event) {
+    console.log('Anywhere');
+    if (!event.defaultPrevented) {
+        toggleLanguageDropdown(event, true);
+    }
+});
+
+// Open pve leaderboards on a new window
+document.getElementById('pve-leaderboard-link').addEventListener('click', openPvELeaderboards, true);
+
+// Open pve shop on a new window
+document.getElementById('shop-link').addEventListener('click', openShop, true);
+
+// Open pve github on a new window
+document.getElementById('github-link').addEventListener('click', openShop, true);
 
 // Apply event listeners to all checkboxes
 var checkboxes = document.getElementsByClassName('Talent-checkboxInput');
@@ -95,3 +317,28 @@ for (var x in checkboxes) {
         check.addEventListener('change', updateCheckbox, true);
     }
 }
+
+// Toggle languages dropdown
+languageDropdown.addEventListener('click', toggleLanguageDropdown, true);
+
+// Select a region
+var regionSelector = document.getElementById('regions').getElementsByTagName('a');
+for (var x in regionSelector) {
+    var region = regionSelector[x];
+    if (region.className) {
+        region.addEventListener('click', handleRegionClick, true);
+    }
+}
+
+// Select a country and language
+var languageSelector = document.getElementById('languages').getElementsByTagName('a');
+for (var x in languageSelector) {
+    var language = languageSelector[x];
+    if (language.className) {
+        language.addEventListener('click', handleLanguageClick, true);
+    }
+}
+
+// Save language changes
+var changeLangButton = document.getElementById('change-language');
+changeLangButton.addEventListener('click', saveLanguageOptions);
