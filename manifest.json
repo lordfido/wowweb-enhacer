@@ -4,7 +4,7 @@
 	"name": "WoW website enhacer",
 	"short_name": "WoW web enhacer",
 	"description": "Get a better display on World of Warcraft official related websites.",
-	"version": "1.2.2",
+	"version": "1.2.3",
 	"author": "Rafael Pérez García",
 
 	"icons": {
@@ -30,10 +30,10 @@
 			"16": "images/logo_16.png"
 		},
 		"default_title": "WoW Web Enhacer",
-		"default_popup": "options.html"
+		"default_popup": "index.html"
 	},
 
-	"options_page": "options.html",
+	"options_page": "index.html",
 
 	"content_scripts": [{
 		"matches": [
@@ -43,14 +43,14 @@
 		"https://*.battle.net/*"
 		],
 		"js": [
-			"js/jquery.min.js",
-			"js/enhacer.js"
+			"constants/variables.js",
+			"js/external_sites.js"
 		]
 	}],
 
 	"background": {
 		"scripts": [
-			"js/background.js"
+			"js/background_task.js"
 		]
 	}
 }

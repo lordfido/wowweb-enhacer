@@ -32,6 +32,22 @@ var languages = {
     },
 };
 
+var months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+];
+
+var accountUrl = 'https://{{region}}.battle.net/account/management/wow/dashboard.html';
 var pveLeaderboardsUrl = 'https://worldofwarcraft.com/{{language}}-{{country}}/game/pve/leaderboards/{{realm}}/{{instance}}';
 var shopUrl = 'https://{{region}}.battle.net/shop/{{language}}/product/game/wow';
 var githubUrl = 'https://www.github.com/lordfido/wowweb-enhacer';
