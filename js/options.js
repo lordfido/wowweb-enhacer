@@ -32,6 +32,8 @@ var load_options = function() {
         updatePvELeaderboardsFactionGroupsBackground: true,
         hidePvELeaderboardsForeignGroups: true,
         showPvELeaderboardsGuild: false,
+        userRegion: 'us',
+        userLanguage: 'en',
 
     // Callback function, do anything after loading options
     }, function(options) {
@@ -59,6 +61,7 @@ var load_options = function() {
         if (options.showPvELeaderboardsGuild) {
             setAsActive(document.getElementById('showPvELeaderboardsGuild').parentElement.parentElement.parentElement);
         }
+        setLanguage(options.userRegion, options.userLanguage);
     });
 };
 
@@ -74,14 +77,89 @@ var updateCheckbox = function(event) {
     save_options();
 };
 
+// Mark checkbox as active
 var setAsActive = function(elem) {
     elem.classList.add('Talent--selectedGutter');
     elem.classList.add('is-selected');
 };
 
+// Mark checkbox as inactive
 var setAsInactive = function(elem) {
     elem.classList.remove('Talent--selectedGutter');
     elem.classList.remove('is-selected');
+};
+
+// Toggle Region-Language's dropdown
+var languageDropdown = document.getElementById('region-language-dropdown');
+var toggleLanguageDropdown = function(event) {
+    if (/open/.test(languageDropdown.parentElement.className)) {
+        languageDropdown.parentElement.classList.remove('open');
+    } else {
+        languageDropdown.parentElement.classList.add('open');
+    }
+};
+
+// Set Region-Language's dropdown label
+var setLanguage = function(region, language) {
+    // Update dropdown label
+    var selectedRegion = regions[region];
+    var selectedCountry = languages[region][language];
+    var textToDisplay = `${selectedRegion} - ${selectedCountry}`;
+    document.getElementById('region-language-label').innerText = textToDisplay;
+
+    // Mark dropdown elements as active
+    var regionsElem = document.getElementById('regions').childNodes;
+    
+    // Loop through regions
+    for (var x in regionsElem) {
+        var reg = regionsElem[x];
+
+        if (reg.localName === 'li') {
+            // Check for selected region
+            if (reg.firstChild.dataset.region === region) {
+                // Add highlight classes
+                reg.classList.add('active');
+                reg.classList.add('current');
+            } else {
+                // Remove highlight classes
+                reg.classList.remove('active');
+                reg.classList.remove('current');
+            }
+        }
+    }
+
+    var languageRegions = document.getElementById('languages').childNodes;
+    for (var x in languageRegions) {
+        var reg = languageRegions[x];
+        
+        // Loop through available regions
+        if (reg.localName === 'div') {
+
+            // If selected region, mark as active
+            if (reg.dataset.region === region) {
+                reg.classList.add('active');
+            } else {
+                reg.classList.remove('active');
+            }
+            
+            // Loop through available languages
+            var langs = reg.childNodes;
+            for (var y in langs) {
+                var lang = langs[y];
+                if (lang.localName === 'li') {
+                    if (lang.firstChild.dataset.region === region && lang.firstChild.dataset.language === language) {
+                        // Add highlight classes
+                        lang.classList.add('active');
+                        lang.classList.add('current');
+                    } else {
+                        // Remove highlight classes
+                        lang.classList.remove('active');
+                        lang.classList.remove('current');
+                    }
+                }
+            }
+        }
+    }
 };
 
 // On load, restore saved settings
@@ -95,3 +173,6 @@ for (var x in checkboxes) {
         check.addEventListener('change', updateCheckbox, true);
     }
 }
+
+// Open languages dropdown
+languageDropdown.addEventListener('click', toggleLanguageDropdown);

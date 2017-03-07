@@ -29,3 +29,9 @@
 form {
   text-align: center;
 }
+
+/* Footer */
+.select-region,
+.select-language {
+  cursor: pointer;
+}
