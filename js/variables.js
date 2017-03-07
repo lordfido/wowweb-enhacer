@@ -12,7 +12,7 @@ var languages = {
         es: 'Español (AL)',
         pt: 'Português (AL)',
     },
-    ue: {
+    eu: {
         de: 'Deutsch',
         en: 'English (EU)',
         es: 'Español (EU)',

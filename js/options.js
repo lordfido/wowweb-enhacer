@@ -91,8 +91,9 @@ var setAsInactive = function(elem) {
 
 // Toggle Region-Language's dropdown
 var languageDropdown = document.getElementById('region-language-dropdown');
-var toggleLanguageDropdown = function(event) {
-    if (/open/.test(languageDropdown.parentElement.className)) {
+var toggleLanguageDropdown = function(event, forceClose) {
+    event.preventDefault();
+    if (/open/.test(languageDropdown.parentElement.className) || forceClose) {
         languageDropdown.parentElement.classList.remove('open');
     } else {
         languageDropdown.parentElement.classList.add('open');
@@ -205,10 +206,11 @@ for (var x in checkboxes) {
 }
 
 // Toggle languages dropdown
-languageDropdown.addEventListener('click', toggleLanguageDropdown);
+languageDropdown.addEventListener('click', toggleLanguageDropdown, true);
 
 // Change user's region
 var handleRegionClick = function(event) {
+    event.preventDefault();
     var region = event.target && event.target.dataset && event.target.dataset.region;
     if (region) {
         setRegion(region);
@@ -227,6 +229,7 @@ for (var x in regionSelector) {
 
 // Change user's language
 var handleLanguageClick = function(event) {
+    event.preventDefault();
     var region = event.target && event.target.dataset && event.target.dataset.region;
     var language = event.target && event.target.dataset && event.target.dataset.language;
     if (region && language) {
@@ -245,9 +248,8 @@ for (var x in languageSelector) {
 }
 
 // Save options and close languages dropdown
-
-// Save selected options
-var saveLanguageOptions = function() {
+var saveLanguageOptions = function(event) {
+    event.preventDefault();
     chrome.storage.sync.set({
         selectedRegion: selectedRegion,
         selectedLanguage: selectedLanguage,
@@ -256,11 +258,17 @@ var saveLanguageOptions = function() {
     }, function() {
         console.log('Language Options have been saved.');
         updateLanguageDropdownLabel(selectedRegion, selectedLanguage);
-        toggleLanguageDropdown();
+        toggleLanguageDropdown(event);
         document.getElementById('change-language').disabled = false;
         document.getElementById('change-language').classList.remove('disabled');
     });
 };
 
 var changeLangButton = document.getElementById('change-language');
-changeLangButton.addEventListener('click', saveLanguageOptions, true);
+changeLangButton.addEventListener('click', saveLanguageOptions);
+
+document.addEventListener('click', function(event) {
+    if (!event.defaultPrevented) {
+        toggleLanguageDropdown(event, true);
+    }
+});
