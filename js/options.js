@@ -263,16 +263,26 @@ var handleLanguageClick = function(event) {
     }
 };
 
-var openPvELeaderboards = function(event) {
-    event.preventDefault();
-    var url = pveLeaderboardsUrl
+// Replace variables on given URL
+var parseUrl = function(url) {
+    return url
         .replace('{{language}}', selectedLanguage)
         .replace('{{country}}', selectedCountry)
+        .replace('{{region}}', selectedRegion)
         .replace('{{realm}}', defaultRealm)
         .replace('{{instance}}', defaultInstance);
+};
 
-    window.open(url);
-}
+// Open new websites
+var openPvELeaderboards = function(event) {
+    event.preventDefault();
+    window.open(parseUrl(pveLeaderboardsUrl));
+};
+
+var openShop = function(event) {
+    event.preventDefault();
+    window.open(parseUrl(shopUrl));
+};
 
 // On load, restore saved settings
 document.addEventListener('DOMContentLoaded', load_options);
