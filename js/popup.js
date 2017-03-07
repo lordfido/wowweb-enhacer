@@ -56,6 +56,8 @@ var load_options = function() {
         selectedRegion: 'us',
         selectedCountry: 'us',
         selectedLanguage: 'en',
+        suscriptionEnd: false,
+        suscriptionEndLastUpdate: false,
 
     // Callback function, do anything after loading options
     }, function(options) {
@@ -87,6 +89,7 @@ var load_options = function() {
         if (options.showShopOffersFirst) {
             setAsActive(document.getElementById('showShopOffersFirst').parentElement.parentElement.parentElement);
         }
+        showRemainingTime(options.suscriptionEnd, options.suscriptionEndLastUpdate);
         setInitialLanguage(options.selectedRegion, options.selectedLanguage);
     });
 };
@@ -240,6 +243,58 @@ var setInitialLanguage = function(region, language) {
     setLanguage(region, language);
 };
 
+// Returns a formatted string, that is the difference between 2 dates
+var getRemainingTime = function(date) {
+    var end = date;
+    var start = new Date().getTime();
+
+    // Get remaining time
+    var remaining = end - start;
+
+    // Calc values
+    var years = parseInt(remaining / 1000 / 60 / 60 / 24 / 30 / 12);
+    var months = parseInt(remaining / 1000 / 60 / 60 / 24 / 30) - (years * 12);
+    var days = parseInt(remaining / 1000 / 60 / 60 / 24) - (years * 12 * 30) - (months * 30);
+    var hours = parseInt(remaining / 1000 / 60 / 60) - (years * 12 * 30 * 24) - (months * 30 * 24) - (days * 24);
+    var mins = parseInt(remaining / 1000 / 60) - (years * 12 * 30 * 24 * 60) - (months * 30 * 24 * 60) - (days * 24 * 60) - (hours * 60);
+
+    // Build the array
+    var timming = [];
+    if (years) timming.push(`${years} years`);
+    if (months) timming.push(`${months} months`);
+    if (days) timming.push(`${days} days`);
+    if (hours) timming.push(`${hours} hours`);
+    if (mins) timming.push(`${mins} mins`);
+
+    // Return formatted string
+    return timming.join(', ');
+};
+
+var formatDate = function(date) {
+    var dateObj = new Date(date);
+
+    var year = dateObj.getFullYear();
+    var month = dateObj.getMonth();
+    var day = dateObj.getDate();
+    var hour = dateObj.getHours();
+    var min = dateObj.getMinutes();
+    
+    return `${day}/${months[month]}/${year} (${hour}:${min})`;
+};
+
+// Show remaining time on extension
+var showRemainingTime = function(suscriptionEnd, suscriptionEndLastUpdate) {
+    if (suscriptionEnd && suscriptionEndLastUpdate) {
+        var remainingTime = getRemainingTime(suscriptionEnd);
+        var lastUpdate = formatDate(suscriptionEndLastUpdate);
+
+        document.getElementById('remaining-time').innerText = remainingTime;
+        document.getElementById('last-remaining-time').innerText = lastUpdate;
+        document.getElementById('remaining-time-wrapper').classList.remove('hidden');
+        document.getElementById('remaining-time-divider').classList.remove('hidden');
+    }
+}
+
 // Change user's region
 var handleRegionClick = function(event) {
     event.preventDefault();
@@ -274,6 +329,11 @@ var parseUrl = function(url) {
 };
 
 // Open new websites
+var openAccount = function(event) {
+    event.preventDefault();
+    window.open(parseUrl(accountUrl));
+};
+
 var openPvELeaderboards = function(event) {
     event.preventDefault();
     window.open(parseUrl(pveLeaderboardsUrl));
@@ -299,6 +359,9 @@ document.addEventListener('click', function(event) {
         toggleLanguageDropdown(event, true);
     }
 });
+
+// Open account on a new window
+document.getElementById('account-link').addEventListener('click', openAccount, true);
 
 // Open pve leaderboards on a new window
 document.getElementById('pve-leaderboard-link').addEventListener('click', openPvELeaderboards, true);

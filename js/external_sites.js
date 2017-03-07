@@ -34,6 +34,10 @@
 		</svg>`;
 	var tableBgColor = '#211510';
 
+	/* Account */
+	// First group: Region
+	var accountUrlPattern = /^https?:\/\/(.*)\.battle\.net\/account\/management\/wow\/dashboard.html/;
+
 	/* PvE Leaderboards */
 	var pveLeaderboards = 'pve/leaderboards';
 
@@ -44,28 +48,30 @@
 	var shopWebsitePattern = /^https?:\/\/(.*)\.battle\.net\/shop\/([a-zA-Z]*)\/product\/game\/wow/;
 
 	/* Config variables */
-	var useEquippedItemLevel = true;										// Use equipped item level instead of average
+	var useEquippedItemLevel = true;							// Use equipped item level instead of average
 	var markPvELeaderboardsForeignCharacters = true;			// Use custom styles for foreign charachters
 	var markPvELeaderboardsFactionGroups = true;				// Place an icon to show group's factions
 	var updatePvELeaderboardsFactionGroupsBackground = true;	// Change table background with its faction's color
 	var hidePvELeaderboardsForeignGroups = true;				// Hide groups with too many foreigners
 	var showPvELeaderboardsGuild = false;						// Show the guild name of each group
-	var showShopOffersFirst = true;						// Show all offers available at the top of the shop
+	var showShopOffersFirst = true;								// Show all offers available at the top of the shop
+	var suscriptionEnd = false;
+	var suscriptionEndLastUpdate = false;
 
 	// Init saved configs
 	var initConfigs = function(callback) {
 
 		chrome.storage.sync.get({
-				useEquippedItemLevel: true,
-        markPvELeaderboardsForeignCharacters: true,
-        markPvELeaderboardsFactionGroups: true,
-        updatePvELeaderboardsFactionGroupsBackground: true,
-        hidePvELeaderboardsForeignGroups: true,
-        showPvELeaderboardsGuild: false,
-				showShopOffersFirst: true,
+			useEquippedItemLevel: true,
+			markPvELeaderboardsForeignCharacters: true,
+			markPvELeaderboardsFactionGroups: true,
+			updatePvELeaderboardsFactionGroupsBackground: true,
+			hidePvELeaderboardsForeignGroups: true,
+			showPvELeaderboardsGuild: false,
+			showShopOffersFirst: true,
 
-    // Callback function, do anything after loading options
-    }, function(options) {
+    	// Callback function, do anything after loading options
+		}, function(options) {
 			useEquippedItemLevel = options.useEquippedItemLevel;
 			markPvELeaderboardsForeignCharacters = options.markPvELeaderboardsForeignCharacters;
 			markPvELeaderboardsFactionGroups = options.markPvELeaderboardsFactionGroups;
@@ -75,7 +81,7 @@
 			showShopOffersFirst = options.showShopOffersFirst;
 
 			callback();
-    });
+		});
 	};
 
 	/* Init functions */
@@ -84,6 +90,11 @@
 
 		if (isWarcraftWebsite(urlToCheck)) {
 			debug('Entering on wow website');
+
+			// Verify if we are on Account website
+			if (isAccountWebsite(urlToCheck)) {
+				updateSuscriptionEnd();
+			}
 
 			// Verify if we are on PvE Leaderboards Website
 			if (isPvELeaderboardsWebsite(urlToCheck)) {
@@ -100,6 +111,7 @@
 				}
 			}
 
+			// Verify if we are on Shop website
 			if (isWarcraftShopWebsite(urlToCheck)) {
 				debug('Shop website detected!');
 				enhanceShop();
@@ -109,6 +121,23 @@
 			document.head.appendChild(enhacedStyles);
 		}
 	};
+
+	// Read suscription's end date, and stores it
+	var updateSuscriptionEnd = function() {
+		// Get date
+		var suscriptionEnd = document.querySelector('.section.account-details .account-time span time').getAttribute('datetime');
+		var suscriptionEndDate = new Date(suscriptionEnd).getTime();
+		
+		// Get 'now'
+		var lastUpdate = new Date().getTime();
+
+		chrome.storage.sync.set({
+			suscriptionEnd: suscriptionEndDate,
+			suscriptionEndLastUpdate: lastUpdate,
+		}, function() {
+			debug('Suscription\'s end has been updated');
+		});
+	}
 
 	// Apply enhances to armory
 	var enhanceArmory = function() {
@@ -472,6 +501,12 @@
 			new RegExp(battleNetWebsite).test(url) > 0
 		);
 	};
+
+	// Verify is account website
+	var isAccountWebsite = function(url) {
+		debug('Checking isAccountWebsite(): '+ url);
+		return accountUrlPattern.test(url);
+	}
 
 	// Verify we are on a PvE leaderboard website
 	var isPvELeaderboardsWebsite = function(url) {
