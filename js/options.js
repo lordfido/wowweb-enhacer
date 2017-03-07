@@ -284,6 +284,11 @@ var openShop = function(event) {
     window.open(parseUrl(shopUrl));
 };
 
+var openGithub = function(event) {
+    event.preventDefault();
+    window.open(githubUrl);
+};
+
 // On load, restore saved settings
 document.addEventListener('DOMContentLoaded', load_options);
 
@@ -298,8 +303,11 @@ document.addEventListener('click', function(event) {
 // Open pve leaderboards on a new window
 document.getElementById('pve-leaderboard-link').addEventListener('click', openPvELeaderboards, true);
 
-// Open pve leaderboards on a new window
+// Open pve shop on a new window
 document.getElementById('shop-link').addEventListener('click', openShop, true);
+
+// Open pve github on a new window
+document.getElementById('github-link').addEventListener('click', openShop, true);
 
 // Apply event listeners to all checkboxes
 var checkboxes = document.getElementsByClassName('Talent-checkboxInput');

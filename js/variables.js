@@ -34,6 +34,7 @@ var languages = {
 
 var pveLeaderboardsUrl = 'https://worldofwarcraft.com/{{language}}-{{country}}/game/pve/leaderboards/{{realm}}/{{instance}}';
 var shopUrl = 'https://{{region}}.battle.net/shop/{{language}}/product/game/wow';
+var githubUrl = 'https://www.github.com/lordfido/wowweb-enhacer';
 
 var defaultRealm = 'aegwynn';
 var defaultInstance = 'vault-of-the-wardens';
