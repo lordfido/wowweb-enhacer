@@ -35,6 +35,7 @@ form {
 }
 
 /* Footer */
+.Link,
 .select-region,
 .select-language {
   cursor: pointer;

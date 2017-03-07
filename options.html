@@ -93,10 +93,12 @@
 				<div class="List List--vertical List--center">
 					<div class="List-item gutter-normal">
 						<div class="space-normal"></div>
-						<h1 class="font-title-normal-onDark">PvE Leaderboards</h1>
-						<div class="space-small"></div>
+						<h1 class="font-title-normal-onDark">PvE Leaderboards </h1>
+						<a id="pve-leaderboard-link" class="Link color-monochrome-white">View Leaderboards</a>
 					</div>
 				</div>
+				<div class="space-normal"></div>
+				<div class="space-normal"></div>
 			</div>
 		
 			<!-- Form -->
@@ -221,7 +223,7 @@
 			<div class="Pane-content">
 				<div class="gutter-normal gutter-vertical">
 					<div class="SocialLinks">
-						<div class="SocialLinks-title">View code at <a href="https://www.github.com/lordfido/wowweb-enhacer" target="_blank" rel="noopener noreferer">GitHub</a></div>
+						<div class="SocialLinks-title">Help us on <a href="https://www.github.com/lordfido/wowweb-enhacer" target="_blank" rel="noopener noreferer">GitHub</a></div>
 					</div>
 				</div>
 			</div>
@@ -235,72 +237,76 @@
 			<div class="Pane-content">
 				<div class="SiteFooter">
 					<div class="space-small"></div>
+					<div class="row">
+					</div>
 					<div class="footer row">
-							<div class="middle-container">
-								<div class="footer-section clearfix top">
-									<div class="pull-right">
-										<div class="dropup">
-											<a id="region-language-dropdown" data-toggle="dropdown">
-												<span id="region-language-label">América - Español (AL)</span>
-												<i class="footer-icon footer-icon-globe"></i>
-												<i class="footer-icon footer-icon-caret-down"></i>
-											</a>
-											<ul class="dropdown-menu dropdown-menu-right">
-												<li>
-													<div class="region-language-selector desktop clearfix">
-														<ul id="regions" class="region-ul menu-column col-sm-6">
-															<div class="menu-title">Region</div>
-															<li><a data-region="us" class="select-region">Americas</a></li>
-															<li><a data-region="eu" class="select-region">Europe</a></li>
-															<li><a data-region="kr" class="select-region">Korea</a></li>
-															<li><a data-region="tw" class="select-region">Taiwán</a></li>
-															<li><a data-region="cn" class="select-region">China</a></li>
-														</ul>
-														<ul id="languages" class="language-ul menu-column col-sm-6">
-															<div data-region="us" class="region-languages">
-																<div class="menu-title">Language</div>
-																<li><a data-region="us" data-country="us" data-language="en" class="select-language">English (US)</a></li>
-																<li><a data-region="us" data-country="mx" data-language="es" class="select-language">Español (AL)</a></li>
-																<li><a data-region="us" data-country="br" data-language="pt" class="select-language">Português (AL)</a></li>
-															</div>
-															<div data-region="eu" class="region-languages">
-																<div class="menu-title">Language</div>
-																<li><a data-region="eu" data-country="de" data-language="de" class="select-language">Deutsch</a></li>
-																<li><a data-region="eu" data-country="gb" data-language="en" class="select-language">English (EU)</a></li>
-																<li><a data-region="eu" data-country="es" data-language="es" class="select-language">Español (EU)</a></li>
-																<li><a data-region="eu" data-country="fr" data-language="fr" class="select-language">Français</a></li>
-																<li><a data-region="eu" data-country="it" data-language="it" class="select-language">Italiano</a></li>
-																<li><a data-region="eu" data-country="pt" data-language="pt" class="select-language">Português (EU)</a></li>
-																<li><a data-region="eu" data-country="ru" data-language="ru" class="select-language">Русский</a></li>
-															</div>
-															<div data-region="kr" class="region-languages">
-																<div class="menu-title">Language</div>
-																<li><a data-region="kr" data-country="kr" data-language="ko" class="select-language">한국어</a></li>
-															</div>
-															<div data-region="tw" class="region-languages">
-																<div class="menu-title">Language</div>
-																<li><a data-region="tw" data-country="tw" data-language="zh" class="select-language">繁體中文</a></li>
-															</div>
-															<div data-region="cn" class="region-languages">
-																<div class="menu-title">Language</div>
-																<li><a data-region="cn" data-country="cn" data-language="zh" class="select-language">简体中文</a></li>
-															</div>
-														</ul>
-													</div>
-												</li>
-												<li class="divider"></li>
-												<li>
-													<div class="dropdown-section clearfix">
-														<a id="change-language" class="btn btn-primary change-button disabled">Change</a>
-													</div>
-												</li>
-												<div class="arrow-down"></div>
-											</ul>
-										</div>
+						<div class="middle-container">
+							<div class="footer-section clearfix top">
+								<div class="pull-right">
+									Open links on
+									<div class="space-small"></div>
+									<div class="dropup">
+										<a id="region-language-dropdown" data-toggle="dropdown">
+											<span id="region-language-label">América - Español (AL)</span>
+											<i class="footer-icon footer-icon-globe"></i>
+											<i class="footer-icon footer-icon-caret-down"></i>
+										</a>
+										<ul class="dropdown-menu dropdown-menu-right">
+											<li>
+												<div class="region-language-selector desktop clearfix">
+													<ul id="regions" class="region-ul menu-column col-sm-6">
+														<div class="menu-title">Region</div>
+														<li><a data-region="us" class="select-region">Americas</a></li>
+														<li><a data-region="eu" class="select-region">Europe</a></li>
+														<li><a data-region="kr" class="select-region">Korea</a></li>
+														<li><a data-region="tw" class="select-region">Taiwán</a></li>
+														<li><a data-region="cn" class="select-region">China</a></li>
+													</ul>
+													<ul id="languages" class="language-ul menu-column col-sm-6">
+														<div data-region="us" class="region-languages">
+															<div class="menu-title">Language</div>
+															<li><a data-region="us" data-country="us" data-language="en" class="select-language">English (US)</a></li>
+															<li><a data-region="us" data-country="mx" data-language="es" class="select-language">Español (AL)</a></li>
+															<li><a data-region="us" data-country="br" data-language="pt" class="select-language">Português (AL)</a></li>
+														</div>
+														<div data-region="eu" class="region-languages">
+															<div class="menu-title">Language</div>
+															<li><a data-region="eu" data-country="de" data-language="de" class="select-language">Deutsch</a></li>
+															<li><a data-region="eu" data-country="gb" data-language="en" class="select-language">English (EU)</a></li>
+															<li><a data-region="eu" data-country="es" data-language="es" class="select-language">Español (EU)</a></li>
+															<li><a data-region="eu" data-country="fr" data-language="fr" class="select-language">Français</a></li>
+															<li><a data-region="eu" data-country="it" data-language="it" class="select-language">Italiano</a></li>
+															<li><a data-region="eu" data-country="pt" data-language="pt" class="select-language">Português (EU)</a></li>
+															<li><a data-region="eu" data-country="ru" data-language="ru" class="select-language">Русский</a></li>
+														</div>
+														<div data-region="kr" class="region-languages">
+															<div class="menu-title">Language</div>
+															<li><a data-region="kr" data-country="kr" data-language="ko" class="select-language">한국어</a></li>
+														</div>
+														<div data-region="tw" class="region-languages">
+															<div class="menu-title">Language</div>
+															<li><a data-region="tw" data-country="tw" data-language="zh" class="select-language">繁體中文</a></li>
+														</div>
+														<div data-region="cn" class="region-languages">
+															<div class="menu-title">Language</div>
+															<li><a data-region="cn" data-country="cn" data-language="zh" class="select-language">简体中文</a></li>
+														</div>
+													</ul>
+												</div>
+											</li>
+											<li class="divider"></li>
+											<li>
+												<div class="dropdown-section clearfix">
+													<a id="change-language" class="btn btn-primary change-button disabled">Change</a>
+												</div>
+											</li>
+											<div class="arrow-down"></div>
+										</ul>
 									</div>
 								</div>
 							</div>
 						</div>
+					</div>
 				</div>
 			</div>
 		</div>

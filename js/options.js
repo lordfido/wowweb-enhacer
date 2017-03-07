@@ -1,4 +1,4 @@
-var selectedRegion, selectedLanguage;
+var selectedRegion, selectedCountry, selectedLanguage;
 
 // Save selected options
 var save_options = function() {
@@ -23,6 +23,24 @@ var save_options = function() {
     });
 };
 
+// Save options and close languages dropdown
+var saveLanguageOptions = function(event) {
+    event.preventDefault();
+    chrome.storage.sync.set({
+        selectedRegion: selectedRegion,
+        selectedCountry: selectedCountry,
+        selectedLanguage: selectedLanguage,
+    
+    // Callback function, do anything after saving options
+    }, function() {
+        console.log('Language Options have been saved.');
+        updateLanguageDropdownLabel(selectedRegion, selectedLanguage);
+        toggleLanguageDropdown(event);
+        document.getElementById('change-language').disabled = false;
+        document.getElementById('change-language').classList.remove('disabled');
+    });
+};
+
 // Get options from chrome settings
 var load_options = function() {
     chrome.storage.sync.get({
@@ -33,6 +51,7 @@ var load_options = function() {
         hidePvELeaderboardsForeignGroups: true,
         showPvELeaderboardsGuild: false,
         selectedRegion: 'us',
+        selectedCountry: 'us',
         selectedLanguage: 'en',
 
     // Callback function, do anything after loading options
@@ -89,6 +108,18 @@ var setAsInactive = function(elem) {
     elem.classList.remove('is-selected');
 };
 
+// Load last options saved
+var discardLanguageChanges = function() {
+    chrome.storage.sync.get({
+        selectedRegion: 'us',
+        selectedLanguage: 'en',
+
+    // Callback function, do anything after loading options
+    }, function(options) {
+        setInitialLanguage(options.selectedRegion, options.selectedLanguage);
+    });
+};
+
 // Toggle Region-Language's dropdown
 var languageDropdown = document.getElementById('region-language-dropdown');
 var toggleLanguageDropdown = function(event, forceClose) {
@@ -97,6 +128,10 @@ var toggleLanguageDropdown = function(event, forceClose) {
         languageDropdown.parentElement.classList.remove('open');
     } else {
         languageDropdown.parentElement.classList.add('open');
+    }
+
+    if (forceClose) {
+        discardLanguageChanges();
     }
 };
 
@@ -173,6 +208,7 @@ var setLanguage = function(region, language) {
                         lang.classList.add('active');
                         lang.classList.add('current');
                         selectedLanguage = language;
+                        selectedCountry = lang.firstChild.dataset.country;
                     } else {
                         // Remove highlight classes
                         lang.classList.remove('active');
@@ -193,21 +229,6 @@ var setInitialLanguage = function(region, language) {
     setLanguage(region, language);
 };
 
-// On load, restore saved settings
-document.addEventListener('DOMContentLoaded', load_options);
-
-// Apply event listeners to all checkboxes
-var checkboxes = document.getElementsByClassName('Talent-checkboxInput');
-for (var x in checkboxes) {
-    var check = checkboxes[x];
-    if (check.className) {
-        check.addEventListener('change', updateCheckbox, true);
-    }
-}
-
-// Toggle languages dropdown
-languageDropdown.addEventListener('click', toggleLanguageDropdown, true);
-
 // Change user's region
 var handleRegionClick = function(event) {
     event.preventDefault();
@@ -218,14 +239,6 @@ var handleRegionClick = function(event) {
         document.getElementById('change-language').classList.add('disabled');
     }
 };
-
-var regionSelector = document.getElementById('regions').getElementsByTagName('a');
-for (var x in regionSelector) {
-    var region = regionSelector[x];
-    if (region.className) {
-        region.addEventListener('click', handleRegionClick, true);
-    }
-}
 
 // Change user's language
 var handleLanguageClick = function(event) {
@@ -239,6 +252,45 @@ var handleLanguageClick = function(event) {
     }
 };
 
+var openPvELeaderboards = function(event) {
+    event.preventDefault();
+    var url = pveLeaderboardsUrl
+        .replace('{{language}}', selectedLanguage)
+        .replace('{{country}}', selectedCountry)
+        .replace('{{realm}}', defaultRealm)
+        .replace('{{instance}}', defaultInstance);
+
+    window.open(url);
+}
+
+// On load, restore saved settings
+document.addEventListener('DOMContentLoaded', load_options);
+
+// Open pve leaderboards on a new window
+document.getElementById('pve-leaderboard-link').addEventListener('click', openPvELeaderboards, true);
+
+// Apply event listeners to all checkboxes
+var checkboxes = document.getElementsByClassName('Talent-checkboxInput');
+for (var x in checkboxes) {
+    var check = checkboxes[x];
+    if (check.className) {
+        check.addEventListener('change', updateCheckbox, true);
+    }
+}
+
+// Toggle languages dropdown
+languageDropdown.addEventListener('click', toggleLanguageDropdown, true);
+
+// Select a region
+var regionSelector = document.getElementById('regions').getElementsByTagName('a');
+for (var x in regionSelector) {
+    var region = regionSelector[x];
+    if (region.className) {
+        region.addEventListener('click', handleRegionClick, true);
+    }
+}
+
+// Select a country and language
 var languageSelector = document.getElementById('languages').getElementsByTagName('a');
 for (var x in languageSelector) {
     var language = languageSelector[x];
@@ -247,26 +299,11 @@ for (var x in languageSelector) {
     }
 }
 
-// Save options and close languages dropdown
-var saveLanguageOptions = function(event) {
-    event.preventDefault();
-    chrome.storage.sync.set({
-        selectedRegion: selectedRegion,
-        selectedLanguage: selectedLanguage,
-    
-    // Callback function, do anything after saving options
-    }, function() {
-        console.log('Language Options have been saved.');
-        updateLanguageDropdownLabel(selectedRegion, selectedLanguage);
-        toggleLanguageDropdown(event);
-        document.getElementById('change-language').disabled = false;
-        document.getElementById('change-language').classList.remove('disabled');
-    });
-};
-
+// Save language changes
 var changeLangButton = document.getElementById('change-language');
 changeLangButton.addEventListener('click', saveLanguageOptions);
 
+// General click
 document.addEventListener('click', function(event) {
     if (!event.defaultPrevented) {
         toggleLanguageDropdown(event, true);

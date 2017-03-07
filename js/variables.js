@@ -31,3 +31,8 @@ var languages = {
         ezhn: '简体中文',
     },
 };
+
+var pveLeaderboardsUrl = 'https://worldofwarcraft.com/{{language}}-{{country}}/game/pve/leaderboards/{{realm}}/{{instance}}';
+
+var defaultRealm = 'aegwynn';
+var defaultInstance = 'vault-of-the-wardens';
