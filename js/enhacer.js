@@ -14,7 +14,6 @@
 	var guildParameter = /\?guild\=(.*)$/;
 	var foreignClassNameModifier = '--foreign';
 	var residentClassNameModifier = '--resident';
-	var pveGroupPrefix = 'pve-group-';
 
 	/* Faction colors */
 	var allianceColor = 'rgba(0, 40, 84, 0.4)';
@@ -38,6 +37,12 @@
 	/* PvE Leaderboards */
 	var pveLeaderboards = 'pve/leaderboards';
 
+	/* Store */
+	// URL components
+	// First group: Region
+	// Second group: Language
+	var shopWebsitePattern = /^https?:\/\/(.*)\.battle\.net\/shop\/([a-zA-Z]*)\/product\/game\/wow/;
+
 	/* Config variables */
 	var useEquippedItemLevel = true;										// Use equipped item level instead of average
 	var markPvELeaderboardsForeignCharacters = true;			// Use custom styles for foreign charachters
@@ -45,6 +50,7 @@
 	var updatePvELeaderboardsFactionGroupsBackground = true;	// Change table background with its faction's color
 	var hidePvELeaderboardsForeignGroups = true;				// Hide groups with too many foreigners
 	var showPvELeaderboardsGuild = false;						// Show the guild name of each group
+	var showShopOffersFirst = true;						// Show all offers available at the top of the shop
 
 	// Init saved configs
 	var initConfigs = function(callback) {
@@ -56,6 +62,7 @@
         updatePvELeaderboardsFactionGroupsBackground: true,
         hidePvELeaderboardsForeignGroups: true,
         showPvELeaderboardsGuild: false,
+				showShopOffersFirst: true,
 
     // Callback function, do anything after loading options
     }, function(options) {
@@ -65,6 +72,7 @@
 			updatePvELeaderboardsFactionGroupsBackground = options.updatePvELeaderboardsFactionGroupsBackground;
 			hidePvELeaderboardsForeignGroups = options.hidePvELeaderboardsForeignGroups;
 			showPvELeaderboardsGuild = options.showPvELeaderboardsGuild;
+			showShopOffersFirst = options.showShopOffersFirst;
 
 			callback();
     });
@@ -74,21 +82,27 @@
 	var init = function() {
 		debug('Extension loaded');
 
-		if (isArmoryWebsite(urlToCheck)) {
-			debug('Armory website detected!');
-
-			enhanceArmory();
-			if (guildParameter.test(urlToCheck)) {
-				makeGuildNameAvailable();
-			}
-		}
-
 		if (isWarcraftWebsite(urlToCheck)) {
 			debug('Entering on wow website');
 
 			// Verify if we are on PvE Leaderboards Website
 			if (isPvELeaderboardsWebsite(urlToCheck)) {
 				enhancePvELeaderboards();
+			}
+
+			// Verify if we are on Armory website
+			if (isArmoryWebsite(urlToCheck)) {
+				debug('Armory website detected!');
+
+				enhanceArmory();
+				if (guildParameter.test(urlToCheck)) {
+					makeGuildNameAvailable();
+				}
+			}
+
+			if (isWarcraftShopWebsite(urlToCheck)) {
+				debug('Shop website detected!');
+				enhanceShop();
 			}
 
 			// Add enhacedStyles to the DOM
@@ -414,6 +428,42 @@
 		guildChecker();
 	};
 
+	// Apply enhances to shop
+	var enhanceShop = function() {
+		if (showShopOffersFirst) {
+			groupOffersAtTop();
+		}
+	};
+
+	// Move discounts to top
+	var groupOffersAtTop = function() {
+		var parsedProducts = [];
+		var offers = [];
+
+		// Get all products
+		var products = document.getElementsByClassName('product-link');
+		for (var x in products) {
+			parsedProducts.push(products[x]);
+		}
+
+		// Clean offers from normal lists, and store them
+		parsedProducts.forEach(function(product) {
+			if (product.querySelector && product.querySelector('.discount')) {
+				offers.push(product.parentElement);
+				product.parentElement.remove();
+			}
+		});
+
+		// Create new wrapper
+		var shopHTML = document.querySelector('.browse-template.product-family-wow .body-content .grid-container.browse.game.wow .browse-container .browse-column.main');
+		var offersHTML = document.createElement('ul');
+		offersHTML.className = "product-card-container thumbnails";
+		offers.forEach(function(offer) {
+			offersHTML.appendChild(offer);
+		});
+		shopHTML.prepend(offersHTML);
+	};
+
 	// Verify we are on a World of Warcraft website
 	var isWarcraftWebsite = function(url) {
 		debug('Checking isWarcraftWebsite(): '+ url);
@@ -426,23 +476,25 @@
 	// Verify we are on a PvE leaderboard website
 	var isPvELeaderboardsWebsite = function(url) {
 		debug('Checking isPvELeaderboardsWebsite(): '+ url);
-		return (
-			new RegExp(pveLeaderboards).test(url)
-		);
+		return new RegExp(pveLeaderboards).test(url);
 	};
 
 	// Verify we are on a PvE leaderboard website
 	var isArmoryWebsite = function(url) {
 		debug('Checking isArmoryWebsite(): '+ url);
-		return (
-			characterWebsitePattern.test(url)
-		);
+		return characterWebsitePattern.test(url);
 	};
 
 	// Verify selected character belongs to selected realm
 	var isForeignCharacter = function(char, realm) {
 		return (new RegExp(realm).test(char.href) <= 0);
 	};
+
+	// Verify we are at wow eShop
+	var isWarcraftShopWebsite = function(url) {
+		debug('Checking isWarcraftShopWebsite(): '+ url);
+		return shopWebsitePattern.test(url);
+	}
 
 	var debugging = true;
 	var debug = function(params) {

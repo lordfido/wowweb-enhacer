@@ -8,6 +8,7 @@ var save_options = function() {
     var updatePvELeaderboardsFactionGroupsBackground = document.getElementById('updatePvELeaderboardsFactionGroupsBackground').checked;
     var hidePvELeaderboardsForeignGroups = document.getElementById('hidePvELeaderboardsForeignGroups').checked;
     var showPvELeaderboardsGuild = document.getElementById('showPvELeaderboardsGuild').checked;
+    var showShopOffersFirst = document.getElementById('showShopOffersFirst').checked;
 
     chrome.storage.sync.set({
         useEquippedItemLevel: useEquippedItemLevel,
@@ -16,6 +17,7 @@ var save_options = function() {
         updatePvELeaderboardsFactionGroupsBackground: updatePvELeaderboardsFactionGroupsBackground,
         hidePvELeaderboardsForeignGroups: hidePvELeaderboardsForeignGroups,
         showPvELeaderboardsGuild: showPvELeaderboardsGuild,
+        showShopOffersFirst: showShopOffersFirst,
     
     // Callback function, do anything after saving options
     }, function() {
@@ -50,6 +52,7 @@ var load_options = function() {
         updatePvELeaderboardsFactionGroupsBackground: true,
         hidePvELeaderboardsForeignGroups: true,
         showPvELeaderboardsGuild: false,
+        showShopOffersFirst: true,
         selectedRegion: 'us',
         selectedCountry: 'us',
         selectedLanguage: 'en',
@@ -80,12 +83,17 @@ var load_options = function() {
         if (options.showPvELeaderboardsGuild) {
             setAsActive(document.getElementById('showPvELeaderboardsGuild').parentElement.parentElement.parentElement);
         }
+        document.getElementById('showShopOffersFirst').checked = options.showShopOffersFirst;
+        if (options.showShopOffersFirst) {
+            setAsActive(document.getElementById('showShopOffersFirst').parentElement.parentElement.parentElement);
+        }
         setInitialLanguage(options.selectedRegion, options.selectedLanguage);
     });
 };
 
 // Change checkbox styles
 var updateCheckbox = function(event) {
+    console.log('Checkbox');
     var elem = event.target;
     if (elem.checked) {
         setAsActive(elem.parentElement.parentElement.parentElement);
@@ -123,7 +131,10 @@ var discardLanguageChanges = function() {
 // Toggle Region-Language's dropdown
 var languageDropdown = document.getElementById('region-language-dropdown');
 var toggleLanguageDropdown = function(event, forceClose) {
-    event.preventDefault();
+    if (event.target.localName !== 'input') {
+        event.preventDefault();
+    }
+
     if (/open/.test(languageDropdown.parentElement.className) || forceClose) {
         languageDropdown.parentElement.classList.remove('open');
     } else {
@@ -266,6 +277,14 @@ var openPvELeaderboards = function(event) {
 // On load, restore saved settings
 document.addEventListener('DOMContentLoaded', load_options);
 
+// General click
+document.addEventListener('click', function(event) {
+    console.log('Anywhere');
+    if (!event.defaultPrevented) {
+        toggleLanguageDropdown(event, true);
+    }
+});
+
 // Open pve leaderboards on a new window
 document.getElementById('pve-leaderboard-link').addEventListener('click', openPvELeaderboards, true);
 
@@ -302,10 +321,3 @@ for (var x in languageSelector) {
 // Save language changes
 var changeLangButton = document.getElementById('change-language');
 changeLangButton.addEventListener('click', saveLanguageOptions);
-
-// General click
-document.addEventListener('click', function(event) {
-    if (!event.defaultPrevented) {
-        toggleLanguageDropdown(event, true);
-    }
-});
