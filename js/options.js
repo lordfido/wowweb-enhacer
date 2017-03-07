@@ -298,6 +298,9 @@ document.addEventListener('click', function(event) {
 // Open pve leaderboards on a new window
 document.getElementById('pve-leaderboard-link').addEventListener('click', openPvELeaderboards, true);
 
+// Open pve leaderboards on a new window
+document.getElementById('shop-link').addEventListener('click', openShop, true);
+
 // Apply event listeners to all checkboxes
 var checkboxes = document.getElementsByClassName('Talent-checkboxInput');
 for (var x in checkboxes) {
