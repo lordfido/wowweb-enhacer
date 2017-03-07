@@ -1,3 +1,4 @@
+var selectedRegion, selectedLanguage;
 
 // Save selected options
 var save_options = function() {
@@ -7,7 +8,6 @@ var save_options = function() {
     var updatePvELeaderboardsFactionGroupsBackground = document.getElementById('updatePvELeaderboardsFactionGroupsBackground').checked;
     var hidePvELeaderboardsForeignGroups = document.getElementById('hidePvELeaderboardsForeignGroups').checked;
     var showPvELeaderboardsGuild = document.getElementById('showPvELeaderboardsGuild').checked;
-
 
     chrome.storage.sync.set({
         useEquippedItemLevel: useEquippedItemLevel,
@@ -19,7 +19,7 @@ var save_options = function() {
     
     // Callback function, do anything after saving options
     }, function() {
-        console.log('Options have been saved');
+        console.log('Options have been saved.');
     });
 };
 
@@ -32,8 +32,8 @@ var load_options = function() {
         updatePvELeaderboardsFactionGroupsBackground: true,
         hidePvELeaderboardsForeignGroups: true,
         showPvELeaderboardsGuild: false,
-        userRegion: 'us',
-        userLanguage: 'en',
+        selectedRegion: 'us',
+        selectedLanguage: 'en',
 
     // Callback function, do anything after loading options
     }, function(options) {
@@ -61,7 +61,7 @@ var load_options = function() {
         if (options.showPvELeaderboardsGuild) {
             setAsActive(document.getElementById('showPvELeaderboardsGuild').parentElement.parentElement.parentElement);
         }
-        setLanguage(options.userRegion, options.userLanguage);
+        setInitialLanguage(options.selectedRegion, options.selectedLanguage);
     });
 };
 
@@ -99,35 +99,16 @@ var toggleLanguageDropdown = function(event) {
     }
 };
 
-// Set Region-Language's dropdown label
-var setLanguage = function(region, language) {
-    // Update dropdown label
+// Update dropdown label
+var updateLanguageDropdownLabel = function(region, language) {
     var selectedRegion = regions[region];
     var selectedCountry = languages[region][language];
     var textToDisplay = `${selectedRegion} - ${selectedCountry}`;
     document.getElementById('region-language-label').innerText = textToDisplay;
+};
 
-    // Mark dropdown elements as active
-    var regionsElem = document.getElementById('regions').childNodes;
-    
-    // Loop through regions
-    for (var x in regionsElem) {
-        var reg = regionsElem[x];
-
-        if (reg.localName === 'li') {
-            // Check for selected region
-            if (reg.firstChild.dataset.region === region) {
-                // Add highlight classes
-                reg.classList.add('active');
-                reg.classList.add('current');
-            } else {
-                // Remove highlight classes
-                reg.classList.remove('active');
-                reg.classList.remove('current');
-            }
-        }
-    }
-
+// Show available languages for a region
+var updateLanguageList = function(region) {
     var languageRegions = document.getElementById('languages').childNodes;
     for (var x in languageRegions) {
         var reg = languageRegions[x];
@@ -141,7 +122,46 @@ var setLanguage = function(region, language) {
             } else {
                 reg.classList.remove('active');
             }
-            
+        }
+    }
+};
+
+// Mark as active selected region
+var setRegion = function(region) {
+    var regionsElem = document.getElementById('regions').childNodes;
+    
+    // Loop through regions
+    for (var x in regionsElem) {
+        var reg = regionsElem[x];
+
+        if (reg.localName === 'li') {
+            // Check for selected region
+            if (reg.firstChild.dataset.region === region) {
+                // Add highlight classes
+                reg.classList.add('active');
+                reg.classList.add('current');
+
+                // Update language list
+                selectedRegion = region;
+                selectedLanguage = false;
+                updateLanguageList(region);
+            } else {
+                // Remove highlight classes
+                reg.classList.remove('active');
+                reg.classList.remove('current');
+            }
+        }
+    }
+};
+
+// Mark as active selected language
+var setLanguage = function(region, language) {
+    var languageRegions = document.getElementById('languages').childNodes;
+    for (var x in languageRegions) {
+        var reg = languageRegions[x];
+        
+        // Loop through available regions
+        if (reg.localName === 'div') {
             // Loop through available languages
             var langs = reg.childNodes;
             for (var y in langs) {
@@ -151,6 +171,7 @@ var setLanguage = function(region, language) {
                         // Add highlight classes
                         lang.classList.add('active');
                         lang.classList.add('current');
+                        selectedLanguage = language;
                     } else {
                         // Remove highlight classes
                         lang.classList.remove('active');
@@ -160,6 +181,15 @@ var setLanguage = function(region, language) {
             }
         }
     }
+};
+
+// Set Region-Language's dropdown label
+var setInitialLanguage = function(region, language) {
+    updateLanguageDropdownLabel(region, language);
+
+    // Mark dropdown elements as active
+    setRegion(region);
+    setLanguage(region, language);
 };
 
 // On load, restore saved settings
@@ -174,5 +204,63 @@ for (var x in checkboxes) {
     }
 }
 
-// Open languages dropdown
+// Toggle languages dropdown
 languageDropdown.addEventListener('click', toggleLanguageDropdown);
+
+// Change user's region
+var handleRegionClick = function(event) {
+    var region = event.target && event.target.dataset && event.target.dataset.region;
+    if (region) {
+        setRegion(region);
+        document.getElementById('change-language').disabled = true;
+        document.getElementById('change-language').classList.add('disabled');
+    }
+};
+
+var regionSelector = document.getElementById('regions').getElementsByTagName('a');
+for (var x in regionSelector) {
+    var region = regionSelector[x];
+    if (region.className) {
+        region.addEventListener('click', handleRegionClick, true);
+    }
+}
+
+// Change user's language
+var handleLanguageClick = function(event) {
+    var region = event.target && event.target.dataset && event.target.dataset.region;
+    var language = event.target && event.target.dataset && event.target.dataset.language;
+    if (region && language) {
+        setLanguage(region, language);
+        document.getElementById('change-language').disabled = false;
+        document.getElementById('change-language').classList.remove('disabled');
+    }
+};
+
+var languageSelector = document.getElementById('languages').getElementsByTagName('a');
+for (var x in languageSelector) {
+    var language = languageSelector[x];
+    if (language.className) {
+        language.addEventListener('click', handleLanguageClick, true);
+    }
+}
+
+// Save options and close languages dropdown
+
+// Save selected options
+var saveLanguageOptions = function() {
+    chrome.storage.sync.set({
+        selectedRegion: selectedRegion,
+        selectedLanguage: selectedLanguage,
+    
+    // Callback function, do anything after saving options
+    }, function() {
+        console.log('Language Options have been saved.');
+        updateLanguageDropdownLabel(selectedRegion, selectedLanguage);
+        toggleLanguageDropdown();
+        document.getElementById('change-language').disabled = false;
+        document.getElementById('change-language').classList.remove('disabled');
+    });
+};
+
+var changeLangButton = document.getElementById('change-language');
+changeLangButton.addEventListener('click', saveLanguageOptions, true);
