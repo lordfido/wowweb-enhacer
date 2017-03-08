@@ -1,8 +1,16 @@
+/* Custom rules */
 html,
 body {
   min-width: 400px;
 }
 
+.font-xs {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+
+/* Override Blizzard's rules */
 .Pane--pageTitle .Pane-bg {
   background-color:#000;
   background-image:url('https://bnetcmsus-a.akamaihd.net/cms/template_resource/73/73HV5HRS7D7C1468353649488.jpg');

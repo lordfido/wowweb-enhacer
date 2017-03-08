@@ -370,7 +370,7 @@ document.getElementById('pve-leaderboard-link').addEventListener('click', openPv
 document.getElementById('shop-link').addEventListener('click', openShop, true);
 
 // Open pve github on a new window
-document.getElementById('github-link').addEventListener('click', openShop, true);
+document.getElementById('github-link').addEventListener('click', openGithub, true);
 
 // Apply event listeners to all checkboxes
 var checkboxes = document.getElementsByClassName('Talent-checkboxInput');
