@@ -1,3 +1,12 @@
+var accountUrl = 'https://{{region}}.battle.net/account/management/wow/dashboard.html';
+var wowheadModifiersUrl = 'http://{{language}}.wowhead.com/affixes';
+var pveLeaderboardsUrl = 'https://worldofwarcraft.com/{{language}}-{{country}}/game/pve/leaderboards/{{realm}}/{{instance}}';
+var shopUrl = 'https://{{region}}.battle.net/shop/{{language}}/product/game/wow';
+var githubUrl = 'https://www.github.com/lordfido/wowweb-enhacer';
+
+var defaultRealm = 'aegwynn';
+var defaultInstance = 'vault-of-the-wardens';
+
 var regions = {
     us: 'Americas',
     eu: 'Europe',
@@ -47,10 +56,24 @@ var months = [
     'Dec',
 ];
 
-var accountUrl = 'https://{{region}}.battle.net/account/management/wow/dashboard.html';
-var pveLeaderboardsUrl = 'https://worldofwarcraft.com/{{language}}-{{country}}/game/pve/leaderboards/{{realm}}/{{instance}}';
-var shopUrl = 'https://{{region}}.battle.net/shop/{{language}}/product/game/wow';
-var githubUrl = 'https://www.github.com/lordfido/wowweb-enhacer';
+// Replace variables on given URL
+var parseUrl = function(url, opts) {
+    return url
+        .replace('{{language}}', opts.selectedLanguage ? opts.selectedLanguage : '' )
+        .replace('{{country}}', opts.selectedCountry ? opts.selectedCountry : '' )
+        .replace('{{region}}', opts.selectedRegion ? opts.selectedRegion : '' )
+        .replace('{{realm}}', defaultRealm ? defaultRealm : '' )
+        .replace('{{instance}}', defaultInstance ? defaultInstance : '' );
+};
 
-var defaultRealm = 'aegwynn';
-var defaultInstance = 'vault-of-the-wardens';
+// Transform a string into a pattern
+var parsePattern = function(url) {
+    var pattern = url
+        .replace('{{language}}', '(.*)')
+        .replace('{{country}}', '(.*)')
+        .replace('{{region}}', '(.*)')
+        .replace('{{realm}}', '(.*)')
+        .replace('{{instance}}', '(.*)');
+
+    return new RegExp(pattern);
+}

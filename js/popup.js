@@ -3,25 +3,32 @@ var selectedRegion, selectedCountry, selectedLanguage;
 // Save selected options
 var save_options = function() {
     var useEquippedItemLevel = document.getElementById('useEquippedItemLevel').checked;
+    var showWeeklyModifiersInfo = document.getElementById('showWeeklyModifiersInfo').checked;
     var markPvELeaderboardsForeignCharacters = document.getElementById('markPvELeaderboardsForeignCharacters').checked;
     var markPvELeaderboardsFactionGroups = document.getElementById('markPvELeaderboardsFactionGroups').checked;
     var updatePvELeaderboardsFactionGroupsBackground = document.getElementById('updatePvELeaderboardsFactionGroupsBackground').checked;
     var hidePvELeaderboardsForeignGroups = document.getElementById('hidePvELeaderboardsForeignGroups').checked;
-    var showPvELeaderboardsGuild = document.getElementById('showPvELeaderboardsGuild').checked;
     var showShopOffersFirst = document.getElementById('showShopOffersFirst').checked;
+    var betaFeaturesEnabled = document.getElementById('betaFeaturesEnabled').checked;
+    var showPvELeaderboardsGuild = betaFeaturesEnabled ? document.getElementById('showPvELeaderboardsGuild').checked : false;
 
     chrome.storage.sync.set({
         useEquippedItemLevel: useEquippedItemLevel,
+        showWeeklyModifiersInfo: showWeeklyModifiersInfo,
         markPvELeaderboardsForeignCharacters: markPvELeaderboardsForeignCharacters,
         markPvELeaderboardsFactionGroups: markPvELeaderboardsFactionGroups,
         updatePvELeaderboardsFactionGroupsBackground: updatePvELeaderboardsFactionGroupsBackground,
         hidePvELeaderboardsForeignGroups: hidePvELeaderboardsForeignGroups,
-        showPvELeaderboardsGuild: showPvELeaderboardsGuild,
         showShopOffersFirst: showShopOffersFirst,
+        betaFeaturesEnabled: betaFeaturesEnabled,
+        betaFeatures: {
+            showPvELeaderboardsGuild: showPvELeaderboardsGuild,
+        }
     
     // Callback function, do anything after saving options
     }, function() {
-        console.log('Options have been saved.');
+        console.log(`Options have been saved, and beta features are ${!betaFeaturesEnabled ? 'not ' : ''}enabled`);
+        toggleBetaFeatures(betaFeaturesEnabled);
     });
 };
 
@@ -47,23 +54,29 @@ var saveLanguageOptions = function(event) {
 var load_options = function() {
     chrome.storage.sync.get({
         useEquippedItemLevel: true,
+        showWeeklyModifiersInfo: true,
         markPvELeaderboardsForeignCharacters: true,
         markPvELeaderboardsFactionGroups: true,
         updatePvELeaderboardsFactionGroupsBackground: true,
         hidePvELeaderboardsForeignGroups: true,
-        showPvELeaderboardsGuild: false,
         showShopOffersFirst: true,
         selectedRegion: 'us',
         selectedCountry: 'us',
         selectedLanguage: 'en',
         suscriptionEnd: false,
         suscriptionEndLastUpdate: false,
+        betaFeaturesEnabled: false,
+        betaFeatures: {}
 
     // Callback function, do anything after loading options
     }, function(options) {
         document.getElementById('useEquippedItemLevel').checked = options.useEquippedItemLevel;
         if (options.useEquippedItemLevel) {
             setAsActive(document.getElementById('useEquippedItemLevel').parentElement.parentElement.parentElement);
+        }
+        document.getElementById('showWeeklyModifiersInfo').checked = options.showWeeklyModifiersInfo;
+        if (options.showWeeklyModifiersInfo) {
+            setAsActive(document.getElementById('showWeeklyModifiersInfo').parentElement.parentElement.parentElement);
         }
         document.getElementById('markPvELeaderboardsForeignCharacters').checked = options.markPvELeaderboardsForeignCharacters;
         if (options.markPvELeaderboardsForeignCharacters) {
@@ -81,16 +94,21 @@ var load_options = function() {
         if (options.hidePvELeaderboardsForeignGroups) {
             setAsActive(document.getElementById('hidePvELeaderboardsForeignGroups').parentElement.parentElement.parentElement);
         }
-        document.getElementById('showPvELeaderboardsGuild').checked = options.showPvELeaderboardsGuild;
-        if (options.showPvELeaderboardsGuild) {
-            setAsActive(document.getElementById('showPvELeaderboardsGuild').parentElement.parentElement.parentElement);
-        }
         document.getElementById('showShopOffersFirst').checked = options.showShopOffersFirst;
         if (options.showShopOffersFirst) {
             setAsActive(document.getElementById('showShopOffersFirst').parentElement.parentElement.parentElement);
         }
+        document.getElementById('betaFeaturesEnabled').checked = options.betaFeaturesEnabled;
+        if (options.betaFeaturesEnabled) {
+            setAsActive(document.getElementById('betaFeaturesEnabled').parentElement.parentElement.parentElement);
+        }
+        document.getElementById('showPvELeaderboardsGuild').checked = options.betaFeaturesEnabled && options.betaFeatures.showPvELeaderboardsGuild;
+        if (options.betaFeatures.showPvELeaderboardsGuild) {
+            setAsActive(document.getElementById('showPvELeaderboardsGuild').parentElement.parentElement.parentElement);
+        }
         showRemainingTime(options.suscriptionEnd, options.suscriptionEndLastUpdate);
         setInitialLanguage(options.selectedRegion, options.selectedLanguage);
+        toggleBetaFeatures(options.betaFeaturesEnabled);
     });
 };
 
@@ -243,6 +261,21 @@ var setInitialLanguage = function(region, language) {
     setLanguage(region, language);
 };
 
+// Show/Hide beta features
+var toggleBetaFeatures = function(enabled) {
+    var features = document.getElementsByClassName('BetaFeature');
+    for (var x in features) {
+        var feature = features[x];
+        if (feature.classList) {
+            if (enabled) {
+                feature.classList.remove('hidden');
+            } else {
+                feature.classList.add('hidden');
+            }
+        }
+    }
+}
+
 // Returns a formatted string, that is the difference between 2 dates
 var getRemainingTime = function(date) {
     var end = date;
@@ -270,6 +303,7 @@ var getRemainingTime = function(date) {
     return timming.join(', ');
 };
 
+// Get a date timestamp and return a formated date string
 var formatDate = function(date) {
     var dateObj = new Date(date);
 
@@ -318,30 +352,32 @@ var handleLanguageClick = function(event) {
     }
 };
 
-// Replace variables on given URL
-var parseUrl = function(url) {
-    return url
-        .replace('{{language}}', selectedLanguage)
-        .replace('{{country}}', selectedCountry)
-        .replace('{{region}}', selectedRegion)
-        .replace('{{realm}}', defaultRealm)
-        .replace('{{instance}}', defaultInstance);
-};
-
 // Open new websites
 var openAccount = function(event) {
     event.preventDefault();
-    window.open(parseUrl(accountUrl));
+    window.open(parseUrl(accountUrl, {
+        selectedLanguage: selectedLanguage,
+        selectedCountry: selectedCountry,
+        selectedRegion: selectedRegion,
+    }));
 };
 
 var openPvELeaderboards = function(event) {
     event.preventDefault();
-    window.open(parseUrl(pveLeaderboardsUrl));
+    window.open(parseUrl(pveLeaderboardsUrl, {
+        selectedLanguage: selectedLanguage,
+        selectedCountry: selectedCountry,
+        selectedRegion: selectedRegion,
+    }));
 };
 
 var openShop = function(event) {
     event.preventDefault();
-    window.open(parseUrl(shopUrl));
+    window.open(parseUrl(shopUrl, {
+        selectedLanguage: selectedLanguage,
+        selectedCountry: selectedCountry,
+        selectedRegion: selectedRegion,
+    }));
 };
 
 var openGithub = function(event) {

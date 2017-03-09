@@ -136,6 +136,30 @@
 							<div class="Talent-head">
 								<div class="List">
 									<div class="Talent-name List-item gutter-normal">
+										Show more info about weekly modifiers
+										<br />
+										<br />
+										<i>*This will open a new window to get neccesary data from http://www.wowhead.com</i>
+									</div>
+								</div>
+								<div class="Talent-checkbox">
+									<input
+										id="showWeeklyModifiersInfo"
+										name="showWeeklyModifiersInfo"
+										type="checkbox"
+										value="none"
+										class="Talent-checkboxInput"
+									/>
+									<label for="showWeeklyModifiersInfo" class="Talent-checkboxLabel"></label>
+								</div>
+								<div class="Talent-active"></div>
+							</div>
+						</div>
+
+						<div class="Talent Talent--checkbox Talent--border Talent--gutter">
+							<div class="Talent-head">
+								<div class="List">
+									<div class="Talent-name List-item gutter-normal">
 										Differentiate non-realm characters
 									</div>
 								</div>
@@ -217,11 +241,14 @@
 							</div>
 						</div>
 
-						<div class="Talent Talent--checkbox Talent--border Talent--gutter" style="display: none!important">
+						<div class="Talent Talent--checkbox Talent--border Talent--gutter BetaFeature">
 							<div class="Talent-head">
 								<div class="List">
 									<div class="Talent-name List-item gutter-normal">
-										Check non-group-finder group's guild
+										Place Guild name on Guild groups
+										<br />
+										<br />
+										<i>*This will open several tabs/windows, and close them automatically once the extension gets the needed data</i>
 									</div>
 								</div>
 								<div class="Talent-checkbox">
@@ -231,7 +258,6 @@
 										type="checkbox"
 										value="none"
 										class="Talent-checkboxInput"
-										disabled
 									/>
 									<label for="showPvELeaderboardsGuild" class="Talent-checkboxLabel"></label>
 								</div>
@@ -285,6 +311,54 @@
 										class="Talent-checkboxInput"
 									/>
 									<label for="showShopOffersFirst" class="Talent-checkboxLabel"></label>
+								</div>
+								<div class="Talent-active"></div>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="space-normal"></div>
+				<div class="space-normal"></div>
+			</div>
+		</div>
+		<div class="Divider"></div>
+
+		<!-- Beta features -->
+		<div class="Pane">
+			<div class="Pane-bg">
+				<div class="Pane-overlay"></div>
+			</div>
+
+			<!-- Page subtitle -->
+			<div class="Pane-content">
+				<div class="List List--vertical List--center">
+					<div class="List-item gutter-normal">
+						<div class="space-normal"></div>
+						<h1 class="font-title-normal-onDark">Beta features</h1>
+					</div>
+				</div>
+			</div>
+		
+			<!-- Form -->
+			<div class="Pane-content">
+				<div class="contain-max">
+					<form name="options">
+						<div class="Talent Talent--checkbox Talent--border Talent--gutter">
+							<div class="Talent-head">
+								<div class="List">
+									<div class="Talent-name List-item gutter-normal">
+										Enable features that are in development or in testing proccess (NOT RECOMMENDED)
+									</div>
+								</div>
+								<div class="Talent-checkbox">
+									<input
+										id="betaFeaturesEnabled"
+										name="betaFeaturesEnabled"
+										type="checkbox"
+										value="none"
+										class="Talent-checkboxInput"
+									/>
+									<label for="betaFeaturesEnabled" class="Talent-checkboxLabel"></label>
 								</div>
 								<div class="Talent-active"></div>
 							</div>
