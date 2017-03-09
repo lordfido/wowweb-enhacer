@@ -53,10 +53,11 @@
 	var markPvELeaderboardsFactionGroups = true;				// Place an icon to show group's factions
 	var updatePvELeaderboardsFactionGroupsBackground = true;	// Change table background with its faction's color
 	var hidePvELeaderboardsForeignGroups = true;				// Hide groups with too many foreigners
-	var showPvELeaderboardsGuild = false;						// Show the guild name of each group
 	var showShopOffersFirst = true;								// Show all offers available at the top of the shop
 	var suscriptionEnd = false;
 	var suscriptionEndLastUpdate = false;
+	var betaFeatures = {};
+	betaFeatures.showPvELeaderboardsGuild = false;						// Show the guild name of each group
 
 	// Init saved configs
 	var initConfigs = function(callback) {
@@ -69,6 +70,8 @@
 			hidePvELeaderboardsForeignGroups: true,
 			showPvELeaderboardsGuild: false,
 			showShopOffersFirst: true,
+			betaFeaturesEnabled: false,
+			betaFeatures: {},
 
     	// Callback function, do anything after loading options
 		}, function(options) {
@@ -77,8 +80,9 @@
 			markPvELeaderboardsFactionGroups = options.markPvELeaderboardsFactionGroups;
 			updatePvELeaderboardsFactionGroupsBackground = options.updatePvELeaderboardsFactionGroupsBackground;
 			hidePvELeaderboardsForeignGroups = options.hidePvELeaderboardsForeignGroups;
-			showPvELeaderboardsGuild = options.showPvELeaderboardsGuild;
 			showShopOffersFirst = options.showShopOffersFirst;
+			betaFeatures = options.betaFeatures;
+			// betaFeatures.showPvELeaderboardsGuild = options.betaFeatures.showPvELeaderboardsGuild;
 
 			callback();
 		});
@@ -295,7 +299,7 @@
 				}
 
 				// Show group's guilds
-				if (showPvELeaderboardsGuild && foreignCharacters <= 1) {
+				if (betaFeatures.showPvELeaderboardsGuild && foreignCharacters <= 1) {
 					var characters = group.getElementsByClassName('Character');
 					var firstMember;
 
@@ -408,7 +412,7 @@
 		}
 
 		// STYLE: Styles for guild labels
-		if (showPvELeaderboardsGuild) {
+		if (betaFeatures.showPvELeaderboardsGuild) {
 			enhacedStyles.innerHTML += `
 				.GuildLabel {
 					padding: 5px;
