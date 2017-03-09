@@ -3,6 +3,7 @@ var selectedRegion, selectedCountry, selectedLanguage;
 // Save selected options
 var save_options = function() {
     var useEquippedItemLevel = document.getElementById('useEquippedItemLevel').checked;
+    var showWeeklyModifiersInfo = document.getElementById('showWeeklyModifiersInfo').checked;
     var markPvELeaderboardsForeignCharacters = document.getElementById('markPvELeaderboardsForeignCharacters').checked;
     var markPvELeaderboardsFactionGroups = document.getElementById('markPvELeaderboardsFactionGroups').checked;
     var updatePvELeaderboardsFactionGroupsBackground = document.getElementById('updatePvELeaderboardsFactionGroupsBackground').checked;
@@ -13,6 +14,7 @@ var save_options = function() {
 
     chrome.storage.sync.set({
         useEquippedItemLevel: useEquippedItemLevel,
+        showWeeklyModifiersInfo: showWeeklyModifiersInfo,
         markPvELeaderboardsForeignCharacters: markPvELeaderboardsForeignCharacters,
         markPvELeaderboardsFactionGroups: markPvELeaderboardsFactionGroups,
         updatePvELeaderboardsFactionGroupsBackground: updatePvELeaderboardsFactionGroupsBackground,
@@ -52,6 +54,7 @@ var saveLanguageOptions = function(event) {
 var load_options = function() {
     chrome.storage.sync.get({
         useEquippedItemLevel: true,
+        showWeeklyModifiersInfo: true,
         markPvELeaderboardsForeignCharacters: true,
         markPvELeaderboardsFactionGroups: true,
         updatePvELeaderboardsFactionGroupsBackground: true,
@@ -70,6 +73,10 @@ var load_options = function() {
         document.getElementById('useEquippedItemLevel').checked = options.useEquippedItemLevel;
         if (options.useEquippedItemLevel) {
             setAsActive(document.getElementById('useEquippedItemLevel').parentElement.parentElement.parentElement);
+        }
+        document.getElementById('showWeeklyModifiersInfo').checked = options.showWeeklyModifiersInfo;
+        if (options.showWeeklyModifiersInfo) {
+            setAsActive(document.getElementById('showWeeklyModifiersInfo').parentElement.parentElement.parentElement);
         }
         document.getElementById('markPvELeaderboardsForeignCharacters').checked = options.markPvELeaderboardsForeignCharacters;
         if (options.markPvELeaderboardsForeignCharacters) {
@@ -345,30 +352,32 @@ var handleLanguageClick = function(event) {
     }
 };
 
-// Replace variables on given URL
-var parseUrl = function(url) {
-    return url
-        .replace('{{language}}', selectedLanguage)
-        .replace('{{country}}', selectedCountry)
-        .replace('{{region}}', selectedRegion)
-        .replace('{{realm}}', defaultRealm)
-        .replace('{{instance}}', defaultInstance);
-};
-
 // Open new websites
 var openAccount = function(event) {
     event.preventDefault();
-    window.open(parseUrl(accountUrl));
+    window.open(parseUrl(accountUrl, {
+        selectedLanguage: selectedLanguage,
+        selectedCountry: selectedCountry,
+        selectedRegion: selectedRegion,
+    }));
 };
 
 var openPvELeaderboards = function(event) {
     event.preventDefault();
-    window.open(parseUrl(pveLeaderboardsUrl));
+    window.open(parseUrl(pveLeaderboardsUrl, {
+        selectedLanguage: selectedLanguage,
+        selectedCountry: selectedCountry,
+        selectedRegion: selectedRegion,
+    }));
 };
 
 var openShop = function(event) {
     event.preventDefault();
-    window.open(parseUrl(shopUrl));
+    window.open(parseUrl(shopUrl, {
+        selectedLanguage: selectedLanguage,
+        selectedCountry: selectedCountry,
+        selectedRegion: selectedRegion,
+    }));
 };
 
 var openGithub = function(event) {

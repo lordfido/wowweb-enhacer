@@ -10,7 +10,7 @@ var requests = 0;
 var stored = 0;
 
 /*	Extension Logic	*/
-/*	Status connection, verify logged user	*/
+/*	Verify we have asked for character's guild	*/
 chrome.runtime.onConnect.addListener(function(getGuildName){
 	if(getGuildName.name === "getGuildName"){
 		getGuildName.onMessage.addListener(function(response){			
@@ -27,7 +27,6 @@ chrome.runtime.onConnect.addListener(function(getGuildName){
 
             if (response.check) {
                 debug(`Asking for selected character: ${response.check}`);
-                debug(response.check);
                 requests += 1;
 
                 var getSelectedCharacter = function() {
@@ -45,6 +44,40 @@ chrome.runtime.onConnect.addListener(function(getGuildName){
                     }
                 };
                 getSelectedCharacter();
+            }
+		});
+	}
+});
+
+var weeklyModifiers = false;;
+
+/*	Verify we have asked for weekly modifiers	*/
+chrome.runtime.onConnect.addListener(function(getWeeklyModifiers){
+	if(getWeeklyModifiers.name === "getWeeklyModifiers"){
+		getWeeklyModifiers.onMessage.addListener(function(response) {
+            // Asking (from PvE Leaderboards) for weekly modifiers
+            if (response.check) {
+                debug(`Asking for weekly modifiers`);
+                weeklyModifiers = false;
+
+                var getWeeklyModifiersInfo = function() {
+                    if (weeklyModifiers) {
+                        debug(`Sending weekly modifiers: ${weeklyModifiers}`);
+                        getWeeklyModifiers.postMessage(weeklyModifiers);
+                    
+                    // Prevent an infinite loop, by stopping the function when all characters have been stored
+                    } else {
+                        setTimeout(function() {
+                            getWeeklyModifiersInfo();
+                        }, 500);
+                    }
+                };
+                getWeeklyModifiersInfo();
+
+            // Sending weekly modifiers (from wowhead);
+            } else {
+                debug(`Getting weekly modifiers info: ${response}`);
+                weeklyModifiers = response;
             }
 		});
 	}

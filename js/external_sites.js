@@ -49,11 +49,15 @@
 
 	/* Config variables */
 	var useEquippedItemLevel = true;							// Use equipped item level instead of average
+	var showWeeklyModifiersInfo = true; 						// Use a mousehover to display more info about weekly modifiers
 	var markPvELeaderboardsForeignCharacters = true;			// Use custom styles for foreign charachters
 	var markPvELeaderboardsFactionGroups = true;				// Place an icon to show group's factions
 	var updatePvELeaderboardsFactionGroupsBackground = true;	// Change table background with its faction's color
 	var hidePvELeaderboardsForeignGroups = true;				// Hide groups with too many foreigners
 	var showShopOffersFirst = true;								// Show all offers available at the top of the shop
+	var selectedRegion = 'us';
+	var selectedCountry = 'us';
+	var selectedLanguage = 'en';
 	var suscriptionEnd = false;
 	var suscriptionEndLastUpdate = false;
 	var betaFeatures = {};
@@ -64,26 +68,34 @@
 
 		chrome.storage.sync.get({
 			useEquippedItemLevel: true,
+			showWeeklyModifiersInfo: true,
 			markPvELeaderboardsForeignCharacters: true,
 			markPvELeaderboardsFactionGroups: true,
 			updatePvELeaderboardsFactionGroupsBackground: true,
 			hidePvELeaderboardsForeignGroups: true,
 			showPvELeaderboardsGuild: false,
 			showShopOffersFirst: true,
+			selectedRegion: 'us',
+			selectedCountry: 'us',
+			selectedLanguage: 'en',
 			betaFeaturesEnabled: false,
 			betaFeatures: {},
 
     	// Callback function, do anything after loading options
 		}, function(options) {
 			useEquippedItemLevel = options.useEquippedItemLevel;
+			showWeeklyModifiersInfo: options.showWeeklyModifiersInfo;
 			markPvELeaderboardsForeignCharacters = options.markPvELeaderboardsForeignCharacters;
 			markPvELeaderboardsFactionGroups = options.markPvELeaderboardsFactionGroups;
 			updatePvELeaderboardsFactionGroupsBackground = options.updatePvELeaderboardsFactionGroupsBackground;
 			hidePvELeaderboardsForeignGroups = options.hidePvELeaderboardsForeignGroups;
 			showShopOffersFirst = options.showShopOffersFirst;
 			betaFeatures = options.betaFeatures;
-			// betaFeatures.showPvELeaderboardsGuild = options.betaFeatures.showPvELeaderboardsGuild;
+			selectedRegion = options.selectedRegion;
+			selectedCountry = options.selectedCountry;
+			selectedLanguage = options.selectedLanguage;
 
+			debug('Options loaded');
 			callback();
 		});
 	};
@@ -91,6 +103,7 @@
 	/* Init functions */
 	var init = function() {
 		debug('Extension loaded');
+		console.log(selectedLanguage);
 
 		if (isWarcraftWebsite(urlToCheck)) {
 			debug('Entering on wow website');
@@ -98,11 +111,6 @@
 			// Verify if we are on Account website
 			if (isAccountWebsite(urlToCheck)) {
 				updateSuscriptionEnd();
-			}
-
-			// Verify if we are on PvE Leaderboards Website
-			if (isPvELeaderboardsWebsite(urlToCheck)) {
-				enhancePvELeaderboards();
 			}
 
 			// Verify if we are on Armory website
@@ -115,6 +123,11 @@
 				}
 			}
 
+			// Verify if we are on PvE Leaderboards Website
+			if (isPvELeaderboardsWebsite(urlToCheck)) {
+				enhancePvELeaderboards();
+			}
+
 			// Verify if we are on Shop website
 			if (isWarcraftShopWebsite(urlToCheck)) {
 				debug('Shop website detected!');
@@ -123,6 +136,11 @@
 
 			// Add enhacedStyles to the DOM
 			document.head.appendChild(enhacedStyles);
+		}
+
+		if (isWowheadWebsite(urlToCheck)) {
+			debug('Entering on wowhead');
+			setWeeklyModifiersInfo();
 		}
 	};
 
@@ -190,11 +208,175 @@
 				.replace("\n", "");
 		}
 
+		getWeeklyModifiersInfo();
+
 		if (selectedRealm) {
 			debug(`Creating rules for ${selectedRealm} realm`);
 
 			enhancePvELeaderboardsCharacters(selectedRealm);
 			enhancePvELeaderboardsGroups(selectedRealm);
+		}
+	};
+
+	// Get imageName from a div's background image
+	var getPictureNameFromDiv = function(element) {
+			var imageName;
+			
+			if (element.style && element.style.backgroundImage) {
+				var bg = element.style.backgroundImage;
+				var startPosition = bg.lastIndexOf('/') + 1;
+				var endPosition = bg.lastIndexOf('.');
+				
+				imageName = bg.substr(startPosition, (endPosition - startPosition));
+			}
+
+			return imageName || undefined;
+	};
+
+	// Set a request for opening wowhead and get weekly affixes info
+	var getWeeklyModifiersInfo = function() {
+		var wrapper = document.querySelector('.Box .contain-max > .List.Separator.Separator--fade > .List-item > .List--vertical > .List-item > .List.List--guttersMedium');
+		
+		// In case we can use Chrome tools
+		if (wrapper && chrome && chrome.runtime && chrome.runtime.connect) {
+			debug('Weekly modifiers have been detected');
+
+			var modifierIcons = wrapper.getElementsByClassName('GameIcon-icon');
+			var modifierImages = [];
+			for (var x in modifierIcons) {
+				if (getPictureNameFromDiv(modifierIcons[x])) {
+					modifierImages.push(getPictureNameFromDiv(modifierIcons[x]));
+				}
+			}
+
+			// Compose the URL
+			var url = `${parseUrl(wowheadModifiersUrl, {
+				selectedLanguage: selectedLanguage,
+			})}?`;
+
+			console.log(url);
+
+			modifierImages.forEach(function(debuff, index) {
+				url += `${(index + 1)}=${debuff}&`;
+			});
+
+			// Clean URL
+			url = url.substr(0, (url.length - 1));
+
+			// Open website with requested debuffs
+			window.open(url);
+			debug('Chrome runtime, waiting to getWeeklyModifiers');
+
+			// Keeps waiting for weekly debuffs
+			var getWeeklyModifiers = chrome.runtime.connect({ name: "getWeeklyModifiers" });
+			getWeeklyModifiers.postMessage({ check: 'getWeeklyModifiers' });
+
+			getWeeklyModifiers.onMessage.addListener(function(response){
+				debug(`Modifiers have been recieved, ${response}`);
+				writeModifiers(modifierIcons, response);
+			});
+		}
+	};
+
+	// Write modifiers descriptions in the DOM
+	var writeModifiers = function(icons, modifiers) {
+		for (var x in icons) {
+			var icon = icons[x];
+
+			if (icon.className) {
+				// Set element where we want to place the description
+				var list = icon.parentElement
+					&& icon.parentElement.parentElement
+					&& icon.parentElement.parentElement.parentElement
+					&& icon.parentElement.parentElement.parentElement.parentElement
+					&& icon.parentElement.parentElement.parentElement.parentElement.parentElement
+					&& icon.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+
+				// Prepeares description
+				if (list) {
+					list.parentElement.style.verticalAlign = 'top';
+					for (var y in modifiers) {
+						var modifier = modifiers[y];
+						var imageName = getPictureNameFromDiv(icon);
+
+						if (imageName && imageName === modifier.name) {
+							debug(`Placing description for weekly modifier`);
+							var description = document.createElement('div');
+							description.className = 'List-item';
+							description.style.color = 'white';
+							description.innerText = modifier.description;
+
+							list.classList.add('List--vertical');
+							list.appendChild(description);
+							break;
+						}
+					}
+				}
+			}
+		}
+	};
+
+	// When we load a wowhead website, get affixes info, and send it to Chrome Extension
+	var setWeeklyModifiersInfo = function() {
+		if (showWeeklyModifiersInfo && chrome && chrome.runtime && chrome.runtime.connect) {
+			var requestedModifiers = [];
+
+			// Get query params
+			var query = location.search;
+			query = query.replace('?', '');
+
+			// Create a list with requested modifiers
+			var params = query.split('&');
+			params.forEach(function(param) {
+				var modifier = param.split('=')[1];
+				if (modifier) {
+					requestedModifiers.push({ name: modifier });
+				}
+			});
+
+			// Waits until modifiers appear
+			var checkForModifiers = function() {
+				var table = document.querySelector('#lv-affixes .listview-mode-default');
+
+				// There are modifiers
+				if (table) {
+					debug('Modifiers have been found');
+					var icons = table.getElementsByClassName('iconsmall');
+
+					requestedModifiers.forEach(function(requestedModifier) {
+						for (var x in icons) {
+							var icon = icons[x];
+							if (icon.className) {
+								var row = icon.parentElement.parentElement;
+		
+								var modifier = row.childNodes[0].childNodes[0].childNodes[0];
+								if (modifier) {
+									var imageName = getPictureNameFromDiv(modifier);
+									
+									if (imageName === requestedModifier.name) {
+										requestedModifier.description = row.childNodes[2].innerText;
+										debug(`Weekly modifier has been found, ${requestedModifier.name}: ${requestedModifier.description}`);										
+										break;
+									}
+								}
+							}
+						}
+					});
+
+					// Send data to chrome extension
+					debug('Chrome runtime, sending modifiers info');
+					var getWeeklyModifiers = chrome.runtime.connect({name: "getWeeklyModifiers"});
+					getWeeklyModifiers.postMessage(requestedModifiers);
+					window.close();
+
+				} else {
+					setTimeout(function() {
+						checkForModifiers();
+					}, 500);
+				}
+			}
+
+			checkForModifiers();
 		}
 	};
 
@@ -240,7 +422,7 @@
 				}
 			`;
 		}
-	}
+	};
 
 	// Apply enhances to groups
 	var enhancePvELeaderboardsGroups = function(selectedRealm) {
@@ -533,6 +715,12 @@
 	var isWarcraftShopWebsite = function(url) {
 		debug('Checking isWarcraftShopWebsite(): '+ url);
 		return shopWebsitePattern.test(url);
+	}
+
+	// Verify if we are at wowhead website
+	var isWowheadWebsite = function(url) {
+		debug('Checking isWarcraftShopWebsite(): '+ url);
+		return parsePattern(wowheadModifiersUrl).test(url);
 	}
 
 	var debugging = true;
