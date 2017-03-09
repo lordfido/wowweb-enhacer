@@ -4,7 +4,7 @@
 	"name": "WoW website enhacer",
 	"short_name": "WoW web enhacer",
 	"description": "Get a better display on World of Warcraft official related websites.",
-	"version": "1.2.6",
+	"version": "1.2.7",
 	"author": "Rafael Pérez García",
 
 	"icons": {
@@ -46,12 +46,14 @@
 		],
 		"js": [
 			"constants/variables.js",
+			"constants/utils.js",
 			"js/external_sites.js"
 		]
 	}],
 
 	"background": {
 		"scripts": [
+			"constants/utils.js",
 			"js/background_task.js"
 		]
 	}
