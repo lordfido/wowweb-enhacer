@@ -1,67 +1,22 @@
 (function(){
 	/*	Init variables	*/
+	var urlToCheck = location.href;
 	var enhacedStyles = document.createElement('style');
 	enhacedStyles.type = 'text/css';
-	var urlToCheck = location.href;
-	var wowWebsite = 'worldofwarcraft.com';
-	var battleNetWebsite = 'battle.net';
-	// URL components
-	// First group: Region
-	// Second group: Language
-	// Third group: selectedRealm
-	// Fourth group: Character
-	var characterWebsitePattern = /^https?:\/\/(.*)\.battle\.net\/wow\/([a-zA-Z]*)\/character\/([a-zA-Z]*)\/(.*)\/.*$/;
-	var guildParameter = /\?guild\=(.*)$/;
+	
+	/* Sufixes */
 	var foreignClassNameModifier = '--foreign';
 	var residentClassNameModifier = '--resident';
 
-	/* Faction colors */
-	var allianceColor = 'rgba(0, 40, 84, 0.4)';
-	var allianceIcon = `<svg
-		xmlns="http://www.w3.org/2000/svg"
-		xmlns:xlink="http://www.w3.org/1999/xlink"
-		viewBox="0 0 64 64"
-		class="Icon-svg">
-			<use xlink:href="/static/components/Icon/Icon-c8faedc6ad.svg#alliance"></use>
-		</svg>`;
-	var hordeColor = 'rgba(133, 0, 0, 0.2)';
-	var hordeIcon = `<svg
-		xmlns="http://www.w3.org/2000/svg"
-		xmlns:xlink="http://www.w3.org/1999/xlink"
-		viewBox="0 0 64 64"
-		class="Icon-svg">
-			<use xlink:href="/static/components/Icon/Icon-c8faedc6ad.svg#horde"></use>
-		</svg>`;
-	var tableBgColor = '#211510';
-
-	/* Account */
-	// First group: Region
-	var accountUrlPattern = /^https?:\/\/(.*)\.battle\.net\/account\/management\/wow\/dashboard.html/;
-
-	/* PvE Leaderboards */
-	var pveLeaderboards = 'pve/leaderboards';
-
-	/* Store */
-	// URL components
-	// First group: Region
-	// Second group: Language
-	var shopWebsitePattern = /^https?:\/\/(.*)\.battle\.net\/shop\/([a-zA-Z]*)\/product\/game\/wow/;
-
-	/* Config variables */
-	var useEquippedItemLevel = true;							// Use equipped item level instead of average
-	var showWeeklyModifiersInfo = true; 						// Use a mousehover to display more info about weekly modifiers
-	var markPvELeaderboardsForeignCharacters = true;			// Use custom styles for foreign charachters
-	var markPvELeaderboardsFactionGroups = true;				// Place an icon to show group's factions
-	var updatePvELeaderboardsFactionGroupsBackground = true;	// Change table background with its faction's color
-	var hidePvELeaderboardsForeignGroups = true;				// Hide groups with too many foreigners
-	var showShopOffersFirst = true;								// Show all offers available at the top of the shop
-	var selectedRegion = 'us';
-	var selectedCountry = 'us';
-	var selectedLanguage = 'en';
-	var suscriptionEnd = false;
-	var suscriptionEndLastUpdate = false;
-	var betaFeatures = {};
-	betaFeatures.showPvELeaderboardsGuild = false;						// Show the guild name of each group
+	/* Patterns */
+	var battleNetUrlPattern = getPatternFromUrl(battleNetUrl);
+	var wowUrlPattern = getPatternFromUrl(wowUrl);
+	var guildParameter = /\?guild\=(.*)$/;
+	var accountUrlPattern = getPatternFromUrl(accountUrl);
+	var armoryUrlPattern = getPatternFromUrl(armoryUrl);
+	var weeklyInstanceModifiersUrlPattern = getPatternFromUrl(weeklyInstanceModifiersUrl);
+	var pveLeaderboardsUrlPattern = getPatternFromUrl(pveLeaderboardsUrl)
+	var shopUrlPattern = getPatternFromUrl(shopUrl);
 
 	// Init saved configs
 	var initConfigs = function(callback) {
@@ -83,8 +38,11 @@
 
     	// Callback function, do anything after loading options
 		}, function(options) {
+			debug('Options have been loaded');
+			debug(options);
+
 			useEquippedItemLevel = options.useEquippedItemLevel;
-			showWeeklyModifiersInfo: options.showWeeklyModifiersInfo;
+			showWeeklyModifiersInfo = options.showWeeklyModifiersInfo;
 			markPvELeaderboardsForeignCharacters = options.markPvELeaderboardsForeignCharacters;
 			markPvELeaderboardsFactionGroups = options.markPvELeaderboardsFactionGroups;
 			updatePvELeaderboardsFactionGroupsBackground = options.updatePvELeaderboardsFactionGroupsBackground;
@@ -95,7 +53,6 @@
 			selectedCountry = options.selectedCountry;
 			selectedLanguage = options.selectedLanguage;
 
-			debug('Options loaded');
 			callback();
 		});
 	};
@@ -103,19 +60,18 @@
 	/* Init functions */
 	var init = function() {
 		debug('Extension loaded');
-		console.log(selectedLanguage);
 
 		if (isWarcraftWebsite(urlToCheck)) {
 			debug('Entering on wow website');
 
 			// Verify if we are on Account website
 			if (isAccountWebsite(urlToCheck)) {
-				updateSuscriptionEnd();
+				enhanceAccount();
 			}
 
 			// Verify if we are on Armory website
 			if (isArmoryWebsite(urlToCheck)) {
-				debug('Armory website detected!');
+				debug('Entering on Armory website');
 
 				enhanceArmory();
 				if (guildParameter.test(urlToCheck)) {
@@ -125,12 +81,13 @@
 
 			// Verify if we are on PvE Leaderboards Website
 			if (isPvELeaderboardsWebsite(urlToCheck)) {
+				debug('Entering on PvE Leaderboards website');
 				enhancePvELeaderboards();
 			}
 
 			// Verify if we are on Shop website
 			if (isWarcraftShopWebsite(urlToCheck)) {
-				debug('Shop website detected!');
+				debug('Entering on Shop website');
 				enhanceShop();
 			}
 
@@ -138,28 +95,16 @@
 			document.head.appendChild(enhacedStyles);
 		}
 
-		if (isWowheadWebsite(urlToCheck)) {
-			debug('Entering on wowhead');
+		if (isWeeklyInstanceModifiersWebsite(urlToCheck)) {
+			debug('Entering on weeklyInstanceModifiers website');
 			setWeeklyModifiersInfo();
 		}
 	};
 
-	// Read suscription's end date, and stores it
-	var updateSuscriptionEnd = function() {
-		// Get date
-		var suscriptionEnd = document.querySelector('.section.account-details .account-time span time').getAttribute('datetime');
-		var suscriptionEndDate = new Date(suscriptionEnd).getTime();
-		
-		// Get 'now'
-		var lastUpdate = new Date().getTime();
-
-		chrome.storage.sync.set({
-			suscriptionEnd: suscriptionEndDate,
-			suscriptionEndLastUpdate: lastUpdate,
-		}, function() {
-			debug('Suscription\'s end has been updated');
-		});
-	}
+	// Apply enhances to account
+	var enhanceAccount = function() {
+		updateSuscriptionEnd();
+	};
 
 	// Apply enhances to armory
 	var enhanceArmory = function() {
@@ -211,35 +156,50 @@
 		getWeeklyModifiersInfo();
 
 		if (selectedRealm) {
-			debug(`Creating rules for ${selectedRealm} realm`);
-
 			enhancePvELeaderboardsCharacters(selectedRealm);
 			enhancePvELeaderboardsGroups(selectedRealm);
 		}
 	};
 
-	// Get imageName from a div's background image
-	var getPictureNameFromDiv = function(element) {
-			var imageName;
-			
-			if (element.style && element.style.backgroundImage) {
-				var bg = element.style.backgroundImage;
-				var startPosition = bg.lastIndexOf('/') + 1;
-				var endPosition = bg.lastIndexOf('.');
-				
-				imageName = bg.substr(startPosition, (endPosition - startPosition));
-			}
+	// Apply enhances to shop
+	var enhanceShop = function() {
+		debug('Enhacing Shop website');
 
-			return imageName || undefined;
+		if (showShopOffersFirst) {
+			groupOffersAtTop();
+		}
 	};
 
-	// Set a request for opening wowhead and get weekly affixes info
+	// Read suscription's end date, and stores it
+	var updateSuscriptionEnd = function() {
+		// Get date
+		var suscriptionEnd = document.querySelector('.section.account-details .account-time span time');
+
+		if (suscriptionEnd) {
+			debug('Updating suscription\'s end date');
+
+			var dateTime = suscriptionEnd.getAttribute('datetime');
+			var suscriptionEndDate = new Date(dateTime).getTime();
+			
+			// Get the 'now' moment (last update)
+			var lastUpdate = new Date().getTime();
+
+			chrome.storage.sync.set({
+				suscriptionEnd: suscriptionEndDate,
+				suscriptionEndLastUpdate: lastUpdate,
+			}, function() {
+				debug('Suscription\'s end has been updated');
+			});
+		}
+	}
+
+	// Set a request for opening weeklyInstanceModifiers and get weekly affixes info
 	var getWeeklyModifiersInfo = function() {
 		var wrapper = document.querySelector('.Box .contain-max > .List.Separator.Separator--fade > .List-item > .List--vertical > .List-item > .List.List--guttersMedium');
 		
 		// In case we can use Chrome tools
-		if (wrapper && chrome && chrome.runtime && chrome.runtime.connect) {
-			debug('Weekly modifiers have been detected');
+		if (showWeeklyModifiersInfo && wrapper && chrome && chrome.runtime && chrome.runtime.connect) {
+			debug('Gathering weekly instance modifiers');
 
 			var modifierIcons = wrapper.getElementsByClassName('GameIcon-icon');
 			var modifierImages = [];
@@ -250,11 +210,9 @@
 			}
 
 			// Compose the URL
-			var url = `${parseUrl(wowheadModifiersUrl, {
+			var url = `${parseUrl(weeklyInstanceModifiersUrl, {
 				selectedLanguage: selectedLanguage,
 			})}?`;
-
-			console.log(url);
 
 			modifierImages.forEach(function(debuff, index) {
 				url += `${(index + 1)}=${debuff}&`;
@@ -265,14 +223,14 @@
 
 			// Open website with requested debuffs
 			window.open(url);
-			debug('Chrome runtime, waiting to getWeeklyModifiers');
+			debug('Weekly instance modifiers\' request has been sent');
 
 			// Keeps waiting for weekly debuffs
 			var getWeeklyModifiers = chrome.runtime.connect({ name: "getWeeklyModifiers" });
 			getWeeklyModifiers.postMessage({ check: 'getWeeklyModifiers' });
 
 			getWeeklyModifiers.onMessage.addListener(function(response){
-				debug(`Modifiers have been recieved, ${response}`);
+				debug('Modifiers info has been recieved');
 				writeModifiers(modifierIcons, response);
 			});
 		}
@@ -280,6 +238,8 @@
 
 	// Write modifiers descriptions in the DOM
 	var writeModifiers = function(icons, modifiers) {
+		debug('Placing description for weekly modifiers');
+
 		for (var x in icons) {
 			var icon = icons[x];
 
@@ -295,12 +255,13 @@
 				// Prepeares description
 				if (list) {
 					list.parentElement.style.verticalAlign = 'top';
+					list.parentElement.style.width = '33%';
+
 					for (var y in modifiers) {
 						var modifier = modifiers[y];
 						var imageName = getPictureNameFromDiv(icon);
 
 						if (imageName && imageName === modifier.name) {
-							debug(`Placing description for weekly modifier`);
 							var description = document.createElement('div');
 							description.className = 'List-item';
 							description.style.color = 'white';
@@ -316,9 +277,10 @@
 		}
 	};
 
-	// When we load a wowhead website, get affixes info, and send it to Chrome Extension
+	// When we load a weeklyInstanceModifiers website, get affixes info, and send it to Chrome Extension
 	var setWeeklyModifiersInfo = function() {
 		if (showWeeklyModifiersInfo && chrome && chrome.runtime && chrome.runtime.connect) {
+			debug('Weekly Instance Modifiers have been found');
 			var requestedModifiers = [];
 
 			// Get query params
@@ -340,7 +302,7 @@
 
 				// There are modifiers
 				if (table) {
-					debug('Modifiers have been found');
+					debug('Gathering info from weekly instance modifiers');
 					var icons = table.getElementsByClassName('iconsmall');
 
 					requestedModifiers.forEach(function(requestedModifier) {
@@ -354,8 +316,7 @@
 									var imageName = getPictureNameFromDiv(modifier);
 									
 									if (imageName === requestedModifier.name) {
-										requestedModifier.description = row.childNodes[2].innerText;
-										debug(`Weekly modifier has been found, ${requestedModifier.name}: ${requestedModifier.description}`);										
+										requestedModifier.description = row.childNodes[2].innerText;									
 										break;
 									}
 								}
@@ -364,7 +325,7 @@
 					});
 
 					// Send data to chrome extension
-					debug('Chrome runtime, sending modifiers info');
+					debug('Weekly instance modifiers\' info has been sent');
 					var getWeeklyModifiers = chrome.runtime.connect({name: "getWeeklyModifiers"});
 					getWeeklyModifiers.postMessage(requestedModifiers);
 					window.close();
@@ -383,6 +344,8 @@
 	// Apply enhances to charachters
 	var enhancePvELeaderboardsCharacters = function(selectedRealm) {
 		if (markPvELeaderboardsForeignCharacters) {
+			debug('Creating different styles for foreign players');
+
 			// Increase spaces between group members
 			// by replacing `gutter-tiny` class with `gutter-small`
 			var listItems = document.getElementsByClassName('List-item gutter-tiny');
@@ -521,18 +484,18 @@
 					if (chrome && chrome.runtime && chrome.runtime.connect) {
 						// Open character's profile on a new window
 						var guildChecker = window.open(`${firstMember.href}?guild=check`);
-						debug('Chrome runtime, waiting to sendGuildName');
 
 						// Get character's name
-						var websiteElements = characterWebsitePattern.exec(firstMember.href);
+						var websiteElements = armoryUrlPattern.exec(firstMember.href);
 						var characterName = websiteElements[4];
 
 						// Keeps waiting for character's guild
+						debug('Guild names\' request has been sent');
 						var getGuildName = chrome.runtime.connect({ name: "getGuildName" });
 						getGuildName.postMessage({ check: characterName });
 
 						getGuildName.onMessage.addListener(function(response){
-							debug(`Getting ${response.name}'s guild: ${response.guild}`);
+							debug('Guild names have been recieved');
 
 							// Loop throug all resident groups
 							var listItems = document.getElementsByClassName(`SortTable${residentClassNameModifier}`);
@@ -550,7 +513,6 @@
 
 											// If we find character that we are checking for guild
 											if (char.innerHTML.toString() === response.name) {
-												debug(`Found ${response.name}'s place on the table. Placing it's guild's link`);
 												var guildElement = getGuildElement(response);
 
 												// If guild is not injected, place it
@@ -569,8 +531,15 @@
 			}
 		}
 
+		// Debugging
+		if (markPvELeaderboardsFactionGroups) {
+			debug('Placing faction icons for each group');
+		}
+
 		// STYLE: Change row's background color, based on their factions
 		if (updatePvELeaderboardsFactionGroupsBackground) {
+			debug('Updating background-color for each group');
+
 			enhacedStyles.innerHTML += `
 				.SortTable--alliance {
 					background: ${allianceColor} !important;
@@ -583,6 +552,8 @@
 
 		// STYLE: Hide foreign groups
 		if (hidePvELeaderboardsForeignGroups) {
+			debug('Hiding \'Group Finder\' groups');
+
 			enhacedStyles.innerHTML += `
 				.SortTable {
 					background: ${tableBgColor};
@@ -595,6 +566,8 @@
 
 		// STYLE: Styles for guild labels
 		if (betaFeatures.showPvELeaderboardsGuild) {
+			debug('Showing groups\' guild names');
+
 			enhacedStyles.innerHTML += `
 				.GuildLabel {
 					padding: 5px;
@@ -620,20 +593,17 @@
 			var guildSelector = document.querySelector('#content .content-bot .profile-info .title-guild .guild > a');
 
 			// If guildSelector does not exist, retry it
-			if (nameSelector && guildSelector) {
-				debug(`New window has loaded, getting name: ${nameSelector.innerText}, and guild: ${guildSelector.innerText}`);
+			if (nameSelector && guildSelector && chrome && chrome.runtime && chrome.runtime.connect) {
 
 				// If there is no guild param on the URL, place it
-				if(chrome && chrome.runtime && chrome.runtime.connect) {
-					debug('Chrome runtime, sending guildName');
-					var getGuildName = chrome.runtime.connect({name: "getGuildName"});
-					getGuildName.postMessage({
-						'name': nameSelector.innerText,
-						'guild': guildSelector.innerText,
-						'guildUrl': guildSelector.href,
-					});
-					window.close();
-				}
+				debug('Guild name has been sent');
+				var getGuildName = chrome.runtime.connect({name: "getGuildName"});
+				getGuildName.postMessage({
+					'name': nameSelector.innerText,
+					'guild': guildSelector.innerText,
+					'guildUrl': guildSelector.href,
+				});
+				window.close();
 			} else {
 				setTimeout(function() {
 					guildChecker();
@@ -643,15 +613,9 @@
 		guildChecker();
 	};
 
-	// Apply enhances to shop
-	var enhanceShop = function() {
-		if (showShopOffersFirst) {
-			groupOffersAtTop();
-		}
-	};
-
 	// Move discounts to top
 	var groupOffersAtTop = function() {
+		debug('Placing discounts at the top');
 		var parsedProducts = [];
 		var offers = [];
 
@@ -681,54 +645,45 @@
 
 	// Verify we are on a World of Warcraft website
 	var isWarcraftWebsite = function(url) {
-		debug('Checking isWarcraftWebsite(): '+ url);
-		return (
-			new RegExp(wowWebsite).test(url) > 0 ||
-			new RegExp(battleNetWebsite).test(url) > 0
-		);
+		// debug('Checking isWarcraftWebsite');
+		return (wowUrlPattern.test(url) || battleNetUrlPattern.test(url));
 	};
 
 	// Verify is account website
 	var isAccountWebsite = function(url) {
-		debug('Checking isAccountWebsite(): '+ url);
+		// debug('Checking isAccountWebsite');
 		return accountUrlPattern.test(url);
 	}
 
 	// Verify we are on a PvE leaderboard website
 	var isPvELeaderboardsWebsite = function(url) {
-		debug('Checking isPvELeaderboardsWebsite(): '+ url);
-		return new RegExp(pveLeaderboards).test(url);
+		// debug('Checking isPvELeaderboardsWebsite');
+		return pveLeaderboardsUrlPattern.test(url);
 	};
 
 	// Verify we are on a PvE leaderboard website
 	var isArmoryWebsite = function(url) {
-		debug('Checking isArmoryWebsite(): '+ url);
-		return characterWebsitePattern.test(url);
+		// debug('Checking isArmoryWebsite');
+		return armoryUrlPattern.test(url);
 	};
 
 	// Verify selected character belongs to selected realm
 	var isForeignCharacter = function(char, realm) {
+		// debug('Checking isForeignCharacter');
 		return (new RegExp(realm).test(char.href) <= 0);
 	};
 
 	// Verify we are at wow eShop
 	var isWarcraftShopWebsite = function(url) {
-		debug('Checking isWarcraftShopWebsite(): '+ url);
-		return shopWebsitePattern.test(url);
+		// debug('Checking isWarcraftShopWebsite');
+		return shopUrlPattern.test(url);
 	}
 
-	// Verify if we are at wowhead website
-	var isWowheadWebsite = function(url) {
-		debug('Checking isWarcraftShopWebsite(): '+ url);
-		return parsePattern(wowheadModifiersUrl).test(url);
+	// Verify if we are at weeklyInstanceModifiers website
+	var isWeeklyInstanceModifiersWebsite = function(url) {
+		// debug('Checking isWeeklyInstanceModifiersWebsite');
+		return weeklyInstanceModifiersUrlPattern.test(url);
 	}
-
-	var debugging = true;
-	var debug = function(params) {
-		if (debugging) {
-			console.log('[wow.com enhacer]:', params);
-		}
-	};
 
 	/*	App start	*/
 	initConfigs(init);

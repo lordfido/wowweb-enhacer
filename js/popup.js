@@ -26,8 +26,21 @@ var save_options = function() {
         }
     
     // Callback function, do anything after saving options
-    }, function() {
-        console.log(`Options have been saved, and beta features are ${!betaFeaturesEnabled ? 'not ' : ''}enabled`);
+    }, function(options) {
+        debug(`Options have been saved, and beta features are ${!betaFeaturesEnabled ? 'not ' : ''}enabled`);
+        debug({
+            useEquippedItemLevel: useEquippedItemLevel,
+            showWeeklyModifiersInfo: showWeeklyModifiersInfo,
+            markPvELeaderboardsForeignCharacters: markPvELeaderboardsForeignCharacters,
+            markPvELeaderboardsFactionGroups: markPvELeaderboardsFactionGroups,
+            updatePvELeaderboardsFactionGroupsBackground: updatePvELeaderboardsFactionGroupsBackground,
+            hidePvELeaderboardsForeignGroups: hidePvELeaderboardsForeignGroups,
+            showShopOffersFirst: showShopOffersFirst,
+            betaFeaturesEnabled: betaFeaturesEnabled,
+            betaFeatures: {
+                showPvELeaderboardsGuild: showPvELeaderboardsGuild,
+            }
+        });
         toggleBetaFeatures(betaFeaturesEnabled);
     });
 };
@@ -42,7 +55,8 @@ var saveLanguageOptions = function(event) {
     
     // Callback function, do anything after saving options
     }, function() {
-        console.log('Language Options have been saved.');
+        debug('Language Options have been saved.');
+
         updateLanguageDropdownLabel(selectedRegion, selectedLanguage);
         toggleLanguageDropdown(event);
         document.getElementById('change-language').disabled = false;
@@ -69,7 +83,10 @@ var load_options = function() {
         betaFeatures: {}
 
     // Callback function, do anything after loading options
-    }, function(options) {
+}, function(options) {
+        debug('Options have been loaded');
+        debug(options);
+
         document.getElementById('useEquippedItemLevel').checked = options.useEquippedItemLevel;
         if (options.useEquippedItemLevel) {
             setAsActive(document.getElementById('useEquippedItemLevel').parentElement.parentElement.parentElement);
@@ -114,7 +131,6 @@ var load_options = function() {
 
 // Change checkbox styles
 var updateCheckbox = function(event) {
-    console.log('Checkbox');
     var elem = event.target;
     if (elem.checked) {
         setAsActive(elem.parentElement.parentElement.parentElement);
@@ -390,7 +406,6 @@ document.addEventListener('DOMContentLoaded', load_options);
 
 // General click
 document.addEventListener('click', function(event) {
-    console.log('Anywhere');
     if (!event.defaultPrevented) {
         toggleLanguageDropdown(event, true);
     }

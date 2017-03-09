@@ -1,19 +1,13 @@
-var debugging = true;
-var debug = function(params) {
-    if (debugging) {
-        console.log('[wow.com enhacer background]:', params);
-    }
-};
-
 var characters = [];
 var requests = 0;
 var stored = 0;
+var weeklyModifiers = false;;
 
 /*	Extension Logic	*/
 /*	Verify we have asked for character's guild	*/
 chrome.runtime.onConnect.addListener(function(getGuildName){
 	if(getGuildName.name === "getGuildName"){
-		getGuildName.onMessage.addListener(function(response){			
+		getGuildName.onMessage.addListener(function(response){
             if (response.name && response.guild) {
                 debug(`Getting character info: ${response.name}`);
 
@@ -48,8 +42,6 @@ chrome.runtime.onConnect.addListener(function(getGuildName){
 		});
 	}
 });
-
-var weeklyModifiers = false;;
 
 /*	Verify we have asked for weekly modifiers	*/
 chrome.runtime.onConnect.addListener(function(getWeeklyModifiers){
